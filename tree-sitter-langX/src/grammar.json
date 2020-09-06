@@ -2,8 +2,99 @@
   "name": "langX",
   "rules": {
     "source_file": {
+      "type": "REPEAT",
+      "content": {
+        "type": "SYMBOL",
+        "name": "statement"
+      }
+    },
+    "statement": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "declar_stmt"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "con_ctl_stmt"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "simple_stmt"
+        }
+      ]
+    },
+    "declar_stmt": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "func_declar_stmt"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "var_declar_stmt"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "class_declar_stmt"
+        }
+      ]
+    },
+    "func_declar_stmt": {
       "type": "STRING",
-      "value": "hello"
+      "value": "func"
+    },
+    "var_declar_stmt": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "id_expr"
+            },
+            {
+              "type": "STRING",
+              "value": ";"
+            }
+          ]
+        }
+      ]
+    },
+    "class_declar_stmt": {
+      "type": "STRING",
+      "value": "class"
+    },
+    "con_ctl_stmt": {
+      "type": "STRING",
+      "value": "xx"
+    },
+    "simple_stmt": {
+      "type": "STRING",
+      "value": "aa"
+    },
+    "id_expr": {
+      "type": "SYMBOL",
+      "name": "IDENTIFIER"
+    },
+    "IDENTIFIER": {
+      "type": "PATTERN",
+      "value": "[$_a-zA-Z][$_a-zA-Z0-9]*"
+    },
+    "TSTRING": {
+      "type": "PATTERN",
+      "value": "\\\"(\\\\.|[^\\\\\"\\n])*\\\""
+    },
+    "XINTEGER": {
+      "type": "PATTERN",
+      "value": "0|([1-9][0-9]*)"
+    },
+    "TDOUBLE": {
+      "type": "PATTERN",
+      "value": "(0|[1-9][0-9]*)\\.[0-9]+"
     }
   },
   "extras": [
