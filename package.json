@@ -1,7 +1,7 @@
 {
   "name": "tree-sitter-langx",
-  "version": "0.0.1",
-  "description": "highlight for langX in Atom.",
+  "version": "0.0.2",
+  "description": "tree-sitter for langX| only for atom using now.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,10 +9,10 @@
 
   "email" : "aincvy@gmail.com",
   "author": "Aincvy",
-  "license": "SEE LICENSE IN ../LICENSE",
+  "license": "SEE LICENSE IN LICENSE",
   "repository": {
     "type" : "git",
-    "url" : "https://github.com/Aincvy/langX-atom.git"
+    "url" : "https://github.com/Aincvy/langX-tree-sitter.git"
   },
   "dependencies": {
     "nan": "^2.14.1",
