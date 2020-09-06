@@ -2,7 +2,6 @@
   "name": "language-langx",
   "version": "0.0.0",
   "description": "highlight for langX in Atom.",
-  "main": "index.js",
   "engines": {"atom": ">=1.0.0 <2.0.0"},
 
   "email" : "aincvy@gmail.com",
