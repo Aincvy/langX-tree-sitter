@@ -7,16 +7,9 @@
 
   "email" : "aincvy@gmail.com",
   "author": "Aincvy",
-  "license": "SEE LICENSE IN ../LICENSE",
+  "license": "SEE LICENSE IN LICENSE",
   "repository": {
     "type" : "git",
     "url" : "https://github.com/Aincvy/langX-atom.git"
-  },
-  "dependencies": {
-    "nan": "^2.14.1",
-    "npm": "^6.14.8"
-  },
-  "devDependencies": {
-    "tree-sitter-cli": "^0.16.9"
   }
 }
