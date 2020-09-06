@@ -1,5 +1,20 @@
 [
   {
+    "type": "call_statement",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "id_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "declar_stmt",
     "named": true,
     "fields": {},
@@ -32,6 +47,36 @@
       "types": [
         {
           "type": "IDENTIFIER",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "int_expr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "XINTEGER",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "simple_stmt",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "call_statement",
           "named": true
         }
       ]
@@ -80,15 +125,39 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
         {
+          "type": "call_statement",
+          "named": true
+        },
+        {
           "type": "id_expr",
+          "named": true
+        },
+        {
+          "type": "int_expr",
+          "named": true
+        },
+        {
+          "type": "var_declar_stmt",
           "named": true
         }
       ]
     }
+  },
+  {
+    "type": "(",
+    "named": false
+  },
+  {
+    "type": ")",
+    "named": false
+  },
+  {
+    "type": ",",
+    "named": false
   },
   {
     "type": ";",
@@ -97,6 +166,22 @@
   {
     "type": "IDENTIFIER",
     "named": true
+  },
+  {
+    "type": "TDOUBLE",
+    "named": true
+  },
+  {
+    "type": "XINTEGER",
+    "named": true
+  },
+  {
+    "type": "[",
+    "named": false
+  },
+  {
+    "type": "]",
+    "named": false
   },
   {
     "type": "class_declar_stmt",
@@ -108,10 +193,6 @@
   },
   {
     "type": "func_declar_stmt",
-    "named": true
-  },
-  {
-    "type": "simple_stmt",
     "named": true
   }
 ]

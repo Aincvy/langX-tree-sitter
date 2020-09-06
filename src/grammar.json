@@ -1,5 +1,6 @@
 {
   "name": "langX",
+  "word": "IDENTIFIER",
   "rules": {
     "source_file": {
       "type": "REPEAT",
@@ -46,9 +47,13 @@
       "type": "STRING",
       "value": "func"
     },
-    "var_declar_stmt": {
+    "_element_var_declar_stmt": {
       "type": "CHOICE",
       "members": [
+        {
+          "type": "SYMBOL",
+          "name": "id_expr"
+        },
         {
           "type": "SEQ",
           "members": [
@@ -58,7 +63,71 @@
             },
             {
               "type": "STRING",
+              "value": "["
+            },
+            {
+              "type": "SYMBOL",
+              "name": "int_expr"
+            },
+            {
+              "type": "STRING",
+              "value": "]"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "id_expr"
+            },
+            {
+              "type": "STRING",
+              "value": "["
+            },
+            {
+              "type": "SYMBOL",
+              "name": "call_statement"
+            },
+            {
+              "type": "STRING",
+              "value": "]"
+            }
+          ]
+        }
+      ]
+    },
+    "var_declar_stmt": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_element_var_declar_stmt"
+            },
+            {
+              "type": "STRING",
               "value": ";"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_element_var_declar_stmt"
+            },
+            {
+              "type": "STRING",
+              "value": ","
+            },
+            {
+              "type": "SYMBOL",
+              "name": "var_declar_stmt"
             }
           ]
         }
@@ -73,12 +142,56 @@
       "value": "xx"
     },
     "simple_stmt": {
-      "type": "STRING",
-      "value": "aa"
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "call_statement"
+        }
+      ]
+    },
+    "call_statement": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "id_expr"
+            },
+            {
+              "type": "STRING",
+              "value": "("
+            },
+            {
+              "type": "STRING",
+              "value": ")"
+            }
+          ]
+        }
+      ]
     },
     "id_expr": {
       "type": "SYMBOL",
       "name": "IDENTIFIER"
+    },
+    "int_expr": {
+      "type": "SYMBOL",
+      "name": "XINTEGER"
+    },
+    "number_expr": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "TDOUBLE"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "XINTEGER"
+        }
+      ]
     },
     "IDENTIFIER": {
       "type": "PATTERN",
