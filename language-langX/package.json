@@ -1,0 +1,22 @@
+{
+  "name": "language-langx",
+  "version": "0.0.0",
+  "description": "highlight for langX in Atom.",
+  "main": "index.js",
+  "engines": {"atom": ">=1.0.0 <2.0.0"},
+
+  "email" : "aincvy@gmail.com",
+  "author": "Aincvy",
+  "license": "SEE LICENSE IN ../LICENSE",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/Aincvy/langX-atom.git"
+  },
+  "dependencies": {
+    "nan": "^2.14.1",
+    "npm": "^6.14.8"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.16.9"
+  }
+}
