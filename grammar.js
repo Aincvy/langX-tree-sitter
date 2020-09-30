@@ -1,7 +1,7 @@
 module.exports = grammar({
   name: 'langX',
 
-  word: $ => $.IDENTIFIER,
+  word: $ => $._IDENTIFIER,
 
   rules: {
 
@@ -21,6 +21,7 @@ module.exports = grammar({
 
     // function
     func_declar_stmt: $ => choice(
+      seq($.func_name_types, $.KEY_FUNCTION, '{', $.block, '}') ,
       seq($.func_name_types, $.KEY_FUNCTION, $.func_param_list, '{', $.block, '}') ,
     ) ,
 
@@ -30,42 +31,53 @@ module.exports = grammar({
       $.OPERATOR_X__
     ),
 
-    func_param_list: $ => choice(
-      $.EMPTY,
-      seq('(' , $.func_param_types, ')' ),
-    ),
+
+    func_param_list: $ => seq('(' , optional($.multiple_id_expr), ')' ),
+    // func_param_list: $ => optional(
+      // seq('(' , $.func_param_types, ')' ),
+      // seq('(' , optional($.multiple_id_expr), ')' )
+    // ),
     func_param_types: $ => choice(
-      $.EMPTY,
+      // $.EMPTY,
       $.id_expr,
       seq($.func_param_types, ',' , $.id_expr),
     ),
 
     lambda_stmt: $ => '',
 
-    call_statement: $ => seq(
-      $.common_object_expr,
-      '(',
-      $.args_list,
-      ')'
-    ),
+    call_statement: $ => prec(2, choice(
+      // common_values_expr '(' args_list ')'
+      seq(
+        $.common_values_expr,
+        '(',
+        $.args_list,
+        ')'
+      ),
+
+      // call_statement ‘.’ id_expr '(' args_list ')'
+      seq(
+        $.call_statement,
+        '.',
+        $.id_expr,
+        '(',
+        $.args_list,
+        ')'
+      )
+    )),
 
     args_list: $ => '',
 
 
     // class
     class_declar_stmt: $ => seq(
-      $.class_name_prefix, $.id_expr, $.class_name_suffix, '{', $.class_body , '}'
-    )  ,
-
-    class_name_prefix: $ => choice(
-      $.EMPTY,
-      $.KEY_AUTO
+      optional($.class_name_prefix),
+      $.id_expr,
+      optional($.class_name_suffix),
+      '{', repeat($.class_body) , '}'
     ),
 
-    class_name_suffix: $ => choice(
-      $.EMPTY,
-      seq($.KEY_EXTEND, $.multiple_id_expr)
-    ),
+    class_name_prefix: $ => $.KEY_AUTO,
+    class_name_suffix: $ => seq($.KEY_EXTEND, $.multiple_id_expr),
 
     class_body: $ => choice(
       $.var_declar_stmt,
@@ -77,16 +89,17 @@ module.exports = grammar({
       '.',
       $.id_expr
     ),
-    this_stmt: $ => seq(
-      $.KEY_THIS,
-      '.',
-      $.this_stmt_factor
-    ),
-    this_stmt_factor: $ => choice(
-      $.call_statement,
-      $.class_member_stmt,
-      $.id_expr
-    ),
+    // this_stmt: $ => seq(
+    //   $.KEY_THIS,
+    //   '.',
+    //   $.this_stmt_factor
+    // ),
+    // this_stmt_factor: $ => choice(
+    //   // $.call_statement,
+    //   $.class_member_stmt,
+    //   $.id_expr
+    // ),
+    this_stmt: $ => $.KEY_THIS,
     static_member_stmt: $ => seq(
       $.id_expr,
       $.OP_SCOPE,
@@ -97,8 +110,8 @@ module.exports = grammar({
 
 
     // simple stmt
-    simple_stmt: $ => seq($.simple_stmt_types, ';') ,
-    simple_stmt_types: $ => choice(
+    simple_stmt: $ => seq($._simple_stmt_types, ';') ,
+    _simple_stmt_types: $ => choice(
       $.require_stmt,
       $.var_declar_stmt,
       $.self_inc_dec_stmt,
@@ -106,16 +119,6 @@ module.exports = grammar({
       $.interrupt_stmt,
       $.restrict_stmt
     ),
-
-    _element_var_declar_stmt: $ => choice(
-      $.id_expr,                                    // single var
-      seq($.id_expr, '[', $.int_expr, ']' ),       // array
-      seq($.id_expr, '[', $.call_statement, ']' )  // array, size by call stmt
-    ),
-    var_declar_stmt: $ => choice(
-      seq($._element_var_declar_stmt, ';'),
-      seq($._element_var_declar_stmt, ',' , $.var_declar_stmt )
-    ) ,
 
     require_stmt: $ => seq(
       $.require_operators,
@@ -128,23 +131,36 @@ module.exports = grammar({
     ),
 
     var_declar_stmt: $ => choice(
-      seq(
-        $.var_prefix,
-        $.multiple_id_expr
-      )
+      // $._elements_var_declar_stmt,
 
+      seq(
+        optional($.var_prefix),
+        $._elements_var_declar_stmt
+      )
       // todo 声明赋值一起
     ),
+
     var_prefix: $ => choice(
-      $.EMPTY,
       $.KEY_CONST,
       $.KEY_LOCAL
     ),
+    _elements_var_declar_stmt: $ => choice(
+      $._element_var_declar_stmt,
+      seq($._elements_var_declar_stmt, ',' , $._element_var_declar_stmt)
+    ),
+    _element_var_declar_stmt: $ => choice(
+      $.id_expr,                                    // single var
+      $._array_var_declar_stmt
+    ),
+    _array_var_declar_stmt: $ => prec(1,
+      seq($.id_expr, '[', $.common_number_expr, ']' ),       // array
+    ),
+
 
     self_inc_dec_stmt: $ => choice(
       seq($.self_inc_dec_operators, $.id_expr),
       seq($.id_expr, $.self_inc_dec_operators),
-      seq($.self_inc_dec_stmt, ',' , $.self_inc_dec_stmt )
+      //  seq($.self_inc_dec_stmt, ',' , $.self_inc_dec_stmt )
     ),
     self_inc_dec_operators: $ => choice(
       $.OP_INC,
@@ -165,7 +181,16 @@ module.exports = grammar({
     class_member_assign_stmt: $ => '',
     array_ele_assign_stmt: $ => '',
 
-    arithmetic_stmt: $ => '',
+    arithmetic_stmt: $ => prec.left(choice(
+      $._arithmetic_add_sub_stmt,
+      $._arithmetic_mul_div_stmt,
+    )),
+    _arithmetic_add_sub_stmt: $ => prec.left(prec(20,
+      seq( $.common_number_expr, '+', $.common_number_expr )
+    )),
+    _arithmetic_mul_div_stmt: $ => prec.left(prec(25,
+      seq( $.common_number_expr, '*', $.common_number_expr )
+    )),
 
     expr_delete: $ => seq($.KEY_DELETE, $.multiple_id_expr),
     expr_new: $ => seq(
@@ -180,6 +205,7 @@ module.exports = grammar({
     block: $ => choice(
         $.EMPTY,
         seq($.block, $.block_item)
+        // $.block_item
     ),
 
     block_item: $ => choice(
@@ -207,13 +233,18 @@ module.exports = grammar({
     ),
 
     // common statement ..
-    id_expr: $ => $.IDENTIFIER ,
+    id_expr: $ => $._IDENTIFIER ,
     int_expr: $ => $.XINTEGER,
     number_expr: $ => choice ( $.TDOUBLE, $.XINTEGER ),
     string_expr: $ => $.TSTRING,
     null_expr: $ => $.KEY_NULL,
 
-    array_ele_stmt: $ => '',
+    array_ele_stmt: $ => seq(
+      $.common_object_expr,
+      '[' ,
+      $.common_number_expr,
+      ']'
+    ),
 
     common_types_expr: $ => choice(
       $.number_expr,
@@ -259,7 +290,7 @@ module.exports = grammar({
     ),
 
     // terminate symbols
-    IDENTIFIER: $ => /[$_a-zA-Z][$_a-zA-Z0-9]*/ ,
+    _IDENTIFIER: $ => /[$_a-zA-Z][$_a-zA-Z0-9]*/ ,
     TSTRING: $ => /\"(\\.|[^\\"\n])*\"/ ,
     XINTEGER: $ => /0|([1-9][0-9]*)/ ,
     TDOUBLE: $ => /(0|[1-9][0-9]*)\.[0-9]+/ ,
