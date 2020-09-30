@@ -2,6 +2,9 @@ module.exports = grammar({
   name: 'langX',
 
   word: $ => $._IDENTIFIER,
+  conflicts: $ => [
+    [$.common_object_expr, $.common_result_of_call_expr]
+  ],
 
   rules: {
 
@@ -30,18 +33,7 @@ module.exports = grammar({
       seq($.BIT_NOT, $.id_expr),
       $.OPERATOR_X__
     ),
-
-
     func_param_list: $ => seq('(' , optional($.multiple_id_expr), ')' ),
-    // func_param_list: $ => optional(
-      // seq('(' , $.func_param_types, ')' ),
-      // seq('(' , optional($.multiple_id_expr), ')' )
-    // ),
-    func_param_types: $ => choice(
-      // $.EMPTY,
-      $.id_expr,
-      seq($.func_param_types, ',' , $.id_expr),
-    ),
 
     lambda_stmt: $ => '',
 
@@ -80,7 +72,7 @@ module.exports = grammar({
     class_name_suffix: $ => seq($.KEY_EXTEND, $.multiple_id_expr),
 
     class_body: $ => choice(
-      $.var_declar_stmt,
+      seq($.var_declar_stmt, ';'),
       $.func_declar_stmt
     ),
 
@@ -89,16 +81,6 @@ module.exports = grammar({
       '.',
       $.id_expr
     ),
-    // this_stmt: $ => seq(
-    //   $.KEY_THIS,
-    //   '.',
-    //   $.this_stmt_factor
-    // ),
-    // this_stmt_factor: $ => choice(
-    //   // $.call_statement,
-    //   $.class_member_stmt,
-    //   $.id_expr
-    // ),
     this_stmt: $ => $.KEY_THIS,
     static_member_stmt: $ => seq(
       $.id_expr,
@@ -106,8 +88,149 @@ module.exports = grammar({
       $.id_expr
     ),
 
-    con_ctl_stmt: $ => 'xx' ,
+    con_ctl_stmt: $ => choice(
+      $.selection_stmt,
+      $.loop_stmt
+    ) ,
 
+    // logic_stmt start !!!
+    logic_stmt: $ => choice(
+      $.type_judge_stmt,
+      $.bool_param_expr,
+      $.not_bool_param_expr,
+      $.compare_expr,
+      seq($.logic_stmt, $.symbol_logic_connection, $.logic_stmt),
+    ),
+    type_judge_stmt: $ => seq($.common_object_expr, $.KEY_IS, $.id_expr),
+    bool_param_expr: $ => choice(
+      $.bool_expr,
+      $.assign_stmt_value_eq
+    ),
+    not_bool_param_expr: $ => seq($.OP_NOT, $.bool_param_expr),
+
+    compare_expr: $ => choice(
+      $.number_compare_expr,
+      // $.null_check_expr
+    ),
+    number_compare_expr: $ => prec(10,
+      seq($.common_number_expr, $.symbol_compare, $.common_number_expr)
+    ),
+    // null_check_expr: $ => prec(15,
+    //   seq($.common_object_expr, $.symbol_equals_not, $.null_expr)
+    // ),
+    symbol_compare: $ => choice(
+      $.OP_GT,
+      $.OP_LT,
+      $.OP_GE,
+      $.OP_LE,
+      $.OP_NE,
+      $.OP_EQ
+    ),
+    symbol_equals_not: $ => choice(
+      $.OP_NE,
+      $.OP_EQ
+    ),
+    symbol_logic_connection: $ => choice(
+      $.OP_AND,
+      $.OP_OR
+    ),
+
+    // logic_stmt end !!!
+
+    // selection_stmt start !!!
+    selection_stmt: $ => choice(
+      $.switch_stmt,
+      $.if_stmt
+    ),
+    if_stmt: $ => seq(
+      $.single_if_stmt,
+      optional($.else_stmt)
+    ),
+    single_if_stmt: $ => seq(
+      $.KEY_IF,
+      '(',
+      $.logic_stmt,
+      ')',
+      '{',
+      repeat($.block),
+      '}'
+    ),
+    else_stmt: $ => seq(
+      repeat($.else_if_stmt),
+      $.single_else_stmt
+    ),
+    else_if_stmt: $ => seq(
+      $.KEY_ELSE,
+      $.single_if_stmt
+    ),
+    single_else_stmt: $ => seq(
+      $.KEY_ELSE,
+      '{',
+      repeat($.block),
+      '}'
+    ),
+    switch_stmt: $ => seq(
+      $.KEY_SWITCH,
+      '(',
+      $.common_number_expr,
+      ')',
+      '{',
+      repeat1($._case_types_stmt),
+      '}'
+    ),
+    _case_types_stmt: $ => choice(
+      $.case_stmt,
+      $.default_stmt
+    ),
+    case_stmt: $ => seq(
+      $.KEY_CASE,
+      $.int_expr,
+      ':',
+      repeat($.block)
+    ),
+    default_stmt: $ => seq(
+      $.KEY_DEFAULT,
+      ':',
+      repeat($.block)
+    ),
+
+    // selection_stmt  end !!!
+
+    // loop_stmt start !!!
+    loop_stmt: $ => choice(
+      $.while_stmt,
+      $.for_stmt
+    ),
+
+    while_stmt: $ => seq(
+      $.KEY_WHILE,
+      '(',
+      $.logic_stmt,
+      ')',
+      '{',
+      repeat($.block),
+      '}'
+    ),
+    for_stmt: $ => seq(
+      $.KEY_FOR,
+      '(',
+      repeat($.for_1_stmt),
+      ';',
+      $.logic_stmt,
+      ';',
+      repeat($.for_1_stmt),
+      ')',
+      '{',
+      repeat($.block),
+      '}'
+    ),
+    for_1_stmt: $ => choice(
+      $.var_declar_stmt,
+      $.self_inc_dec_stmt,
+      $.assign_stmt
+    ),
+
+    // loop_stmt end !!!
 
     // simple stmt
     simple_stmt: $ => seq($._simple_stmt_types, ';') ,
@@ -175,8 +298,13 @@ module.exports = grammar({
     ),
     restrict_stmt: $ => $.KEY_RESTRICT,
 
-    assign_stmt: $ => '',
-    assign_stmt_value: $ => '',
+    assign_stmt: $ => 'assign_stmt',
+    assign_stmt_value: $ => 'assign_stmt_value',
+    assign_stmt_value_eq: $ => choice(
+      $.number_expr,
+      $.common_values_expr,
+      $.common_result_of_call_expr
+    ),
     single_assign_stmt: $ => '',
     class_member_assign_stmt: $ => '',
     array_ele_assign_stmt: $ => '',
@@ -197,7 +325,7 @@ module.exports = grammar({
       $.KEY_NEW,
       $.id_expr,
       '(',
-
+      $.args_list,
       ')'
     ),
 
@@ -215,7 +343,22 @@ module.exports = grammar({
 
 
     // try stmt.
-    try_stmt: $ => $.KEY_TRY,
+    try_stmt: $ => seq(
+      $.KEY_TRY,
+      '{',
+      $.block,
+      '}',
+      optional($.catch_stmt)
+    ),
+    catch_stmt: $ => seq(
+      $.KEY_CATCH,
+      '(',
+      $.id_expr,
+      ')',
+      '{',
+      $.block,
+      '}'
+    ),
 
     // namespace stmt.
     namespace_declar_stmt: $ => seq(
@@ -238,6 +381,7 @@ module.exports = grammar({
     number_expr: $ => choice ( $.TDOUBLE, $.XINTEGER ),
     string_expr: $ => $.TSTRING,
     null_expr: $ => $.KEY_NULL,
+    bool_expr: $ => choice($.KEY_TRUE, $.KEY_FALSE),
 
     array_ele_stmt: $ => seq(
       $.common_object_expr,
@@ -304,7 +448,7 @@ module.exports = grammar({
     KEY_DELETE: $ => 'delete',
     KEY_NEW: $ => 'new',
     KEY_THIS: $ => 'this',
-    KEY_EXTEND: $ => 'extend',
+    KEY_EXTEND: $ => 'extends',
     KEY_AUTO: $ => 'auto',
     KEY_NULL: $ => 'null',
 
@@ -367,6 +511,8 @@ module.exports = grammar({
     OP_LT: $ => '<',
     OP_GE: $ => '>=',
     OP_LE: $ => '<=',
+    OP_EQ: $ => '==',
+    OP_NE: $ => '!=',
 
     // Other
     OP_DOT: $ => '.',

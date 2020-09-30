@@ -1,0 +1,33 @@
+Map {
+  a, b; 
+
+  func =>  {
+
+  }
+
+  get => ( k ) {
+
+  }
+
+  put => ( k, v) {
+
+  }
+
+}
+
+
+auto Map {
+
+  put => ( k, v) {
+
+  }
+
+}
+
+MyMap extends Map {
+
+  put => ( k, v) {
+
+  }
+
+}
