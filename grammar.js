@@ -3,7 +3,7 @@ module.exports = grammar({
 
   word: $ => $._IDENTIFIER,
   conflicts: $ => [
-    [$.common_object_expr, $.common_result_of_call_expr]
+    [$.common_object_expr, $.common_result_of_call_expr] ,
   ],
 
   rules: {
@@ -24,8 +24,8 @@ module.exports = grammar({
 
     // function
     func_declar_stmt: $ => choice(
-      seq($.func_name_types, $.KEY_FUNCTION, '{', $.block, '}') ,
-      seq($.func_name_types, $.KEY_FUNCTION, $.func_param_list, '{', $.block, '}') ,
+      seq($.func_name_types, $.KEY_FUNCTION, $.code_block) ,
+      seq($.func_name_types, $.KEY_FUNCTION, $.func_param_list, $.code_block) ,
     ) ,
 
     func_name_types: $ => choice(
@@ -153,9 +153,7 @@ module.exports = grammar({
       '(',
       $.logic_stmt,
       ')',
-      '{',
-      $.block,
-      '}'
+      $.code_block
     ),
     else_stmt: $ => seq(
       repeat($.else_if_stmt),
@@ -167,9 +165,7 @@ module.exports = grammar({
     ),
     single_else_stmt: $ => seq(
       $.KEY_ELSE,
-      '{',
-      $.block,
-      '}'
+      $.code_block
     ),
     switch_stmt: $ => seq(
       $.KEY_SWITCH,
@@ -188,12 +184,12 @@ module.exports = grammar({
       $.KEY_CASE,
       $.int_expr,
       ':',
-      $.block
+      repeat($.block_item)
     ),
     default_stmt: $ => seq(
       $.KEY_DEFAULT,
       ':',
-      $.block
+      repeat($.block_item)
     ),
 
     // selection_stmt  end !!!
@@ -209,9 +205,7 @@ module.exports = grammar({
       '(',
       $.logic_stmt,
       ')',
-      '{',
-      repeat($.block),
-      '}'
+      $.code_block
     ),
     for_stmt: $ => seq(
       $.KEY_FOR,
@@ -222,9 +216,7 @@ module.exports = grammar({
       ';',
       repeat($.for_3_stmt),
       ')',
-      '{',
-      repeat($.block),
-      '}'
+      $.code_block
     ),
     for_1_stmt: $ => choice(
       // $.var_declar_stmt,
@@ -309,18 +301,12 @@ module.exports = grammar({
       $.single_assign_stmt,
       $.number_change_assign_stmt
     ),
-    multiple_assign_stmt: $ => choice(
-      $.single_assign_stmt,
-    ),
     single_assign_stmt: $ => prec.right(seq(
       $.common_assignable_expr,
       $.OP_ASSIGN,
       $.common_expr
     )),
-    single_assign_stmt_value: $ => choice(
-      $.common_expr,
 
-    ),
 
     assign_stmt_value_eq: $ => choice(
       $.number_expr,
@@ -363,11 +349,12 @@ module.exports = grammar({
         seq( $.common_number_expr, $.OP_MOD, $.common_number_expr ),
       )
     ),
-    bit_arithmetic_stmt: $ => seq(
+    bit_arithmetic_stmt: $ => prec.left(seq(
       $.common_number_expr,
       $.symbol_bit_opr,
       $.common_number_expr
-    ),
+    )),
+    // bit_arithmetic_stmt_shift: $ => prec.left
     symbol_bit_opr: $ => choice(
       $.BIT_AND,
       $.BIT_XOR,
@@ -384,16 +371,14 @@ module.exports = grammar({
     new_expr: $ => seq(
       $.KEY_NEW,
       $.id_expr,
-      '(',
-      $.args_list,
-      ')'
+      $.args_list_with_parentheses
     ),
 
     // expr list or block | inner stmts.
-    block: $ => choice(
-        $.EMPTY,
-        seq($.block, $.block_item)
-        // $.block_item
+    code_block: $ => seq(
+        '{',
+        repeat($.block_item),
+        '}'
     ),
 
     block_item: $ => choice(
@@ -401,23 +386,18 @@ module.exports = grammar({
       $.simple_stmt
     ),
 
-
     // try stmt.
     try_stmt: $ => seq(
       $.KEY_TRY,
-      '{',
-      $.block,
-      '}',
-      optional($.catch_stmt)
+      $.code_block,
+      optional($.catch_stmt),
     ),
     catch_stmt: $ => seq(
       $.KEY_CATCH,
       '(',
       $.id_expr,
       ')',
-      '{',
-      $.block,
-      '}'
+      $.code_block
     ),
 
     // namespace stmt.
@@ -479,7 +459,7 @@ module.exports = grammar({
       $.self_inc_dec_stmt,
       $.call_statement,
       $.arithmetic_stmt,
-      $.single_assign_stmt,
+      // $.single_assign_stmt,
     ),
 
     // 常规表达式 |  可以获取到一个结果的 表达式
@@ -562,11 +542,11 @@ module.exports = grammar({
 
 
     // mathematical symbols
-    OP_ADD: $ => prec.left('+') ,
-    OP_SUB: $ => prec.left('-') ,
-    OP_MUL: $ => prec.left('*') ,
-    OP_DIV: $ => prec.left('/') ,
-    OP_MOD: $ => prec.left('%') ,
+    OP_ADD: $ => prec.left(20,'+') ,
+    OP_SUB: $ => prec.left(20,'-') ,
+    OP_MUL: $ => prec.left(25,'*') ,
+    OP_DIV: $ => prec.left(25,'/') ,
+    OP_MOD: $ => prec.left(25,'%') ,
     OP_ASSIGN: $ => prec.right('='),
     OP_ADD_EQ: $ => '+=',
     OP_SUB_EQ: $ => '-=',
@@ -577,12 +557,12 @@ module.exports = grammar({
     OP_DEC: $ => '--',
 
     // bit operator
-    BIT_AND: $ => prec.left('&'),
-    BIT_OR: $ => prec.left('|'),
-    BIT_XOR: $ => prec.left('^'),
-    BIT_NOT: $ => prec.left('~') ,
-    BIT_LEFT_SHIFT: $ => prec.left('<<') ,
-    BIT_RIGHT_SHIFT: $ => prec.left('>>') ,
+    BIT_AND: $ => prec.left(15,'&'),
+    BIT_OR: $ => prec.left(13,'|'),
+    BIT_XOR: $ => prec.left(14,'^'),
+    BIT_NOT: $ => prec.left(30,'~') ,
+    BIT_LEFT_SHIFT: $ => prec.left(19,'<<') ,
+    BIT_RIGHT_SHIFT: $ => prec.left(19,'>>') ,
 
     // logic symbols
     OP_AND: $ => '&&',

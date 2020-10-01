@@ -62,16 +62,8 @@
               "name": "KEY_FUNCTION"
             },
             {
-              "type": "STRING",
-              "value": "{"
-            },
-            {
               "type": "SYMBOL",
-              "name": "block"
-            },
-            {
-              "type": "STRING",
-              "value": "}"
+              "name": "code_block"
             }
           ]
         },
@@ -91,16 +83,8 @@
               "name": "func_param_list"
             },
             {
-              "type": "STRING",
-              "value": "{"
-            },
-            {
               "type": "SYMBOL",
-              "name": "block"
-            },
-            {
-              "type": "STRING",
-              "value": "}"
+              "name": "code_block"
             }
           ]
         }
@@ -608,16 +592,8 @@
           "value": ")"
         },
         {
-          "type": "STRING",
-          "value": "{"
-        },
-        {
           "type": "SYMBOL",
-          "name": "block"
-        },
-        {
-          "type": "STRING",
-          "value": "}"
+          "name": "code_block"
         }
       ]
     },
@@ -658,16 +634,8 @@
           "name": "KEY_ELSE"
         },
         {
-          "type": "STRING",
-          "value": "{"
-        },
-        {
           "type": "SYMBOL",
-          "name": "block"
-        },
-        {
-          "type": "STRING",
-          "value": "}"
+          "name": "code_block"
         }
       ]
     },
@@ -736,8 +704,11 @@
           "value": ":"
         },
         {
-          "type": "SYMBOL",
-          "name": "block"
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "block_item"
+          }
         }
       ]
     },
@@ -753,8 +724,11 @@
           "value": ":"
         },
         {
-          "type": "SYMBOL",
-          "name": "block"
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "block_item"
+          }
         }
       ]
     },
@@ -791,19 +765,8 @@
           "value": ")"
         },
         {
-          "type": "STRING",
-          "value": "{"
-        },
-        {
-          "type": "REPEAT",
-          "content": {
-            "type": "SYMBOL",
-            "name": "block"
-          }
-        },
-        {
-          "type": "STRING",
-          "value": "}"
+          "type": "SYMBOL",
+          "name": "code_block"
         }
       ]
     },
@@ -849,19 +812,8 @@
           "value": ")"
         },
         {
-          "type": "STRING",
-          "value": "{"
-        },
-        {
-          "type": "REPEAT",
-          "content": {
-            "type": "SYMBOL",
-            "name": "block"
-          }
-        },
-        {
-          "type": "STRING",
-          "value": "}"
+          "type": "SYMBOL",
+          "name": "code_block"
         }
       ]
     },
@@ -1169,15 +1121,6 @@
         }
       ]
     },
-    "multiple_assign_stmt": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "single_assign_stmt"
-        }
-      ]
-    },
     "single_assign_stmt": {
       "type": "PREC_RIGHT",
       "value": 0,
@@ -1198,15 +1141,6 @@
           }
         ]
       }
-    },
-    "single_assign_stmt_value": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "common_expr"
-        }
-      ]
     },
     "assign_stmt_value_eq": {
       "type": "CHOICE",
@@ -1401,21 +1335,25 @@
       }
     },
     "bit_arithmetic_stmt": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "common_number_expr"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "symbol_bit_opr"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "common_number_expr"
-        }
-      ]
+      "type": "PREC_LEFT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "common_number_expr"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "symbol_bit_opr"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "common_number_expr"
+          }
+        ]
+      }
     },
     "symbol_bit_opr": {
       "type": "CHOICE",
@@ -1471,38 +1409,28 @@
           "name": "id_expr"
         },
         {
-          "type": "STRING",
-          "value": "("
-        },
-        {
           "type": "SYMBOL",
-          "name": "args_list"
-        },
-        {
-          "type": "STRING",
-          "value": ")"
+          "name": "args_list_with_parentheses"
         }
       ]
     },
-    "block": {
-      "type": "CHOICE",
+    "code_block": {
+      "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "EMPTY"
+          "type": "STRING",
+          "value": "{"
         },
         {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "block"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "block_item"
-            }
-          ]
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "block_item"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "}"
         }
       ]
     },
@@ -1527,16 +1455,8 @@
           "name": "KEY_TRY"
         },
         {
-          "type": "STRING",
-          "value": "{"
-        },
-        {
           "type": "SYMBOL",
-          "name": "block"
-        },
-        {
-          "type": "STRING",
-          "value": "}"
+          "name": "code_block"
         },
         {
           "type": "CHOICE",
@@ -1572,16 +1492,8 @@
           "value": ")"
         },
         {
-          "type": "STRING",
-          "value": "{"
-        },
-        {
           "type": "SYMBOL",
-          "name": "block"
-        },
-        {
-          "type": "STRING",
-          "value": "}"
+          "name": "code_block"
         }
       ]
     },
@@ -1776,10 +1688,6 @@
         {
           "type": "SYMBOL",
           "name": "arithmetic_stmt"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "single_assign_stmt"
         }
       ]
     },
@@ -2006,7 +1914,7 @@
     },
     "OP_ADD": {
       "type": "PREC_LEFT",
-      "value": 0,
+      "value": 20,
       "content": {
         "type": "STRING",
         "value": "+"
@@ -2014,7 +1922,7 @@
     },
     "OP_SUB": {
       "type": "PREC_LEFT",
-      "value": 0,
+      "value": 20,
       "content": {
         "type": "STRING",
         "value": "-"
@@ -2022,7 +1930,7 @@
     },
     "OP_MUL": {
       "type": "PREC_LEFT",
-      "value": 0,
+      "value": 25,
       "content": {
         "type": "STRING",
         "value": "*"
@@ -2030,7 +1938,7 @@
     },
     "OP_DIV": {
       "type": "PREC_LEFT",
-      "value": 0,
+      "value": 25,
       "content": {
         "type": "STRING",
         "value": "/"
@@ -2038,7 +1946,7 @@
     },
     "OP_MOD": {
       "type": "PREC_LEFT",
-      "value": 0,
+      "value": 25,
       "content": {
         "type": "STRING",
         "value": "%"
@@ -2082,7 +1990,7 @@
     },
     "BIT_AND": {
       "type": "PREC_LEFT",
-      "value": 0,
+      "value": 15,
       "content": {
         "type": "STRING",
         "value": "&"
@@ -2090,7 +1998,7 @@
     },
     "BIT_OR": {
       "type": "PREC_LEFT",
-      "value": 0,
+      "value": 13,
       "content": {
         "type": "STRING",
         "value": "|"
@@ -2098,7 +2006,7 @@
     },
     "BIT_XOR": {
       "type": "PREC_LEFT",
-      "value": 0,
+      "value": 14,
       "content": {
         "type": "STRING",
         "value": "^"
@@ -2106,7 +2014,7 @@
     },
     "BIT_NOT": {
       "type": "PREC_LEFT",
-      "value": 0,
+      "value": 30,
       "content": {
         "type": "STRING",
         "value": "~"
@@ -2114,7 +2022,7 @@
     },
     "BIT_LEFT_SHIFT": {
       "type": "PREC_LEFT",
-      "value": 0,
+      "value": 19,
       "content": {
         "type": "STRING",
         "value": "<<"
@@ -2122,7 +2030,7 @@
     },
     "BIT_RIGHT_SHIFT": {
       "type": "PREC_LEFT",
-      "value": 0,
+      "value": 19,
       "content": {
         "type": "STRING",
         "value": ">>"

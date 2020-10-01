@@ -1,11 +1,46 @@
 [
   {
+    "type": "BIT_AND",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "BIT_LEFT_SHIFT",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "BIT_NOT",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "BIT_OR",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "BIT_RIGHT_SHIFT",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "BIT_XOR",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "OP_ADD",
     "named": true,
     "fields": {}
   },
   {
     "type": "OP_ASSIGN",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "OP_COMMA",
     "named": true,
     "fields": {}
   },
@@ -34,11 +69,34 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
         {
+          "type": "OP_COMMA",
+          "named": true
+        },
+        {
+          "type": "args_list",
+          "named": true
+        },
+        {
           "type": "common_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "args_list_with_parentheses",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "args_list",
           "named": true
         }
       ]
@@ -70,6 +128,10 @@
         },
         {
           "type": "OP_SUB",
+          "named": true
+        },
+        {
+          "type": "bit_arithmetic_stmt",
           "named": true
         },
         {
@@ -107,11 +169,11 @@
       "required": true,
       "types": [
         {
-          "type": "multiple_assign_stmt",
+          "type": "number_change_assign_stmt",
           "named": true
         },
         {
-          "type": "number_change_assign_stmt",
+          "type": "single_assign_stmt",
           "named": true
         }
       ]
@@ -141,7 +203,7 @@
     }
   },
   {
-    "type": "block",
+    "type": "bit_arithmetic_stmt",
     "named": true,
     "fields": {},
     "children": {
@@ -149,15 +211,11 @@
       "required": true,
       "types": [
         {
-          "type": "EMPTY",
+          "type": "common_number_expr",
           "named": true
         },
         {
-          "type": "block",
-          "named": true
-        },
-        {
-          "type": "block_item",
+          "type": "symbol_bit_opr",
           "named": true
         }
       ]
@@ -229,7 +287,7 @@
       "required": true,
       "types": [
         {
-          "type": "args_list",
+          "type": "args_list_with_parentheses",
           "named": true
         },
         {
@@ -260,7 +318,7 @@
           "named": true
         },
         {
-          "type": "block",
+          "type": "block_item",
           "named": true
         },
         {
@@ -283,7 +341,7 @@
           "named": true
         },
         {
-          "type": "block",
+          "type": "code_block",
           "named": true
         },
         {
@@ -387,6 +445,21 @@
         },
         {
           "type": "multiple_id_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "code_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "block_item",
           "named": true
         }
       ]
@@ -535,6 +608,10 @@
       "required": true,
       "types": [
         {
+          "type": "bool_expr",
+          "named": true
+        },
+        {
           "type": "lambda_stmt",
           "named": true
         },
@@ -600,7 +677,7 @@
           "named": true
         },
         {
-          "type": "block",
+          "type": "block_item",
           "named": true
         }
       ]
@@ -710,7 +787,7 @@
           "named": true
         },
         {
-          "type": "block",
+          "type": "code_block",
           "named": true
         },
         {
@@ -741,7 +818,7 @@
           "named": true
         },
         {
-          "type": "block",
+          "type": "code_block",
           "named": true
         },
         {
@@ -904,29 +981,6 @@
     }
   },
   {
-    "type": "multiple_assign_stmt",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "OP_ASSIGN",
-          "named": true
-        },
-        {
-          "type": "common_assignable_expr",
-          "named": true
-        },
-        {
-          "type": "common_expr",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "multiple_id_expr",
     "named": true,
     "fields": {},
@@ -981,7 +1035,7 @@
           "named": true
         },
         {
-          "type": "args_list",
+          "type": "args_list_with_parentheses",
           "named": true
         },
         {
@@ -1257,6 +1311,29 @@
     }
   },
   {
+    "type": "single_assign_stmt",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "OP_ASSIGN",
+          "named": true
+        },
+        {
+          "type": "common_assignable_expr",
+          "named": true
+        },
+        {
+          "type": "common_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "single_else_stmt",
     "named": true,
     "fields": {},
@@ -1269,7 +1346,7 @@
           "named": true
         },
         {
-          "type": "block",
+          "type": "code_block",
           "named": true
         }
       ]
@@ -1288,7 +1365,7 @@
           "named": true
         },
         {
-          "type": "block",
+          "type": "code_block",
           "named": true
         },
         {
@@ -1400,6 +1477,41 @@
         },
         {
           "type": "default_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "symbol_bit_opr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "BIT_AND",
+          "named": true
+        },
+        {
+          "type": "BIT_LEFT_SHIFT",
+          "named": true
+        },
+        {
+          "type": "BIT_NOT",
+          "named": true
+        },
+        {
+          "type": "BIT_OR",
+          "named": true
+        },
+        {
+          "type": "BIT_RIGHT_SHIFT",
+          "named": true
+        },
+        {
+          "type": "BIT_XOR",
           "named": true
         }
       ]
@@ -1518,11 +1630,11 @@
           "named": true
         },
         {
-          "type": "block",
+          "type": "catch_stmt",
           "named": true
         },
         {
-          "type": "catch_stmt",
+          "type": "code_block",
           "named": true
         }
       ]
@@ -1606,7 +1718,7 @@
           "named": true
         },
         {
-          "type": "block",
+          "type": "code_block",
           "named": true
         },
         {
@@ -1618,6 +1730,10 @@
   },
   {
     "type": "%",
+    "named": false
+  },
+  {
+    "type": "&",
     "named": false
   },
   {
@@ -1661,16 +1777,16 @@
     "named": false
   },
   {
+    "type": "<<",
+    "named": false
+  },
+  {
     "type": "=",
     "named": false
   },
   {
-    "type": "BIT_NOT",
-    "named": true
-  },
-  {
-    "type": "EMPTY",
-    "named": true
+    "type": ">>",
+    "named": false
   },
   {
     "type": "KEY_AUTO",
@@ -1877,6 +1993,10 @@
     "named": false
   },
   {
+    "type": "^",
+    "named": false
+  },
+  {
     "type": "lambda_stmt",
     "named": true
   },
@@ -1889,7 +2009,15 @@
     "named": false
   },
   {
+    "type": "|",
+    "named": false
+  },
+  {
     "type": "}",
+    "named": false
+  },
+  {
+    "type": "~",
     "named": false
   }
 ]
