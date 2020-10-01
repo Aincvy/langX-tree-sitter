@@ -11,7 +11,7 @@ module.exports = grammar({
     source_file: $ => repeat($.statement),
     statement: $ => choice (
       $.out_declar_stmt,
-      $.con_ctl_stmt,
+      $._con_ctl_stmt,
       $.simple_stmt,
       $.try_stmt
     ),
@@ -35,15 +35,13 @@ module.exports = grammar({
     ),
     func_param_list: $ => seq('(' , optional($.multiple_id_expr), ')' ),
 
-    lambda_stmt: $ => '',
+    lambda_stmt: $ => 'lambda_stmt',
 
     call_statement: $ => prec(2, choice(
       // common_values_expr '(' args_list ')'
       seq(
         $.common_values_expr,
-        '(',
-        $.args_list,
-        ')'
+        $.args_list_with_parentheses
       ),
 
       // call_statement ‘.’ id_expr '(' args_list ')'
@@ -51,13 +49,19 @@ module.exports = grammar({
         $.call_statement,
         '.',
         $.id_expr,
-        '(',
-        $.args_list,
-        ')'
+        $.args_list_with_parentheses
       )
     )),
 
-    args_list: $ => '',
+    args_list_with_parentheses: $ => seq(
+      '(',
+      repeat($.args_list),
+      ')'
+    ),
+    args_list: $ => choice(
+      $.common_expr,
+      seq($.args_list, $.OP_COMMA, $.common_expr)
+    ),
 
 
     // class
@@ -88,19 +92,19 @@ module.exports = grammar({
       $.id_expr
     ),
 
-    con_ctl_stmt: $ => choice(
+    _con_ctl_stmt: $ => choice(
       $.selection_stmt,
       $.loop_stmt
     ) ,
 
     // logic_stmt start !!!
-    logic_stmt: $ => choice(
+    logic_stmt: $ => prec.left(choice(
       $.type_judge_stmt,
       $.bool_param_expr,
       $.not_bool_param_expr,
       $.compare_expr,
       seq($.logic_stmt, $.symbol_logic_connection, $.logic_stmt),
-    ),
+    )),
     type_judge_stmt: $ => seq($.common_object_expr, $.KEY_IS, $.id_expr),
     bool_param_expr: $ => choice(
       $.bool_expr,
@@ -112,9 +116,7 @@ module.exports = grammar({
       $.number_compare_expr,
       // $.null_check_expr
     ),
-    number_compare_expr: $ => prec(10,
-      seq($.common_number_expr, $.symbol_compare, $.common_number_expr)
-    ),
+    number_compare_expr: $ => seq($.common_number_expr, $.symbol_compare, $.common_number_expr),
     // null_check_expr: $ => prec(15,
     //   seq($.common_object_expr, $.symbol_equals_not, $.null_expr)
     // ),
@@ -152,7 +154,7 @@ module.exports = grammar({
       $.logic_stmt,
       ')',
       '{',
-      repeat($.block),
+      $.block,
       '}'
     ),
     else_stmt: $ => seq(
@@ -166,7 +168,7 @@ module.exports = grammar({
     single_else_stmt: $ => seq(
       $.KEY_ELSE,
       '{',
-      repeat($.block),
+      $.block,
       '}'
     ),
     switch_stmt: $ => seq(
@@ -186,12 +188,12 @@ module.exports = grammar({
       $.KEY_CASE,
       $.int_expr,
       ':',
-      repeat($.block)
+      $.block
     ),
     default_stmt: $ => seq(
       $.KEY_DEFAULT,
       ':',
-      repeat($.block)
+      $.block
     ),
 
     // selection_stmt  end !!!
@@ -218,14 +220,18 @@ module.exports = grammar({
       ';',
       $.logic_stmt,
       ';',
-      repeat($.for_1_stmt),
+      repeat($.for_3_stmt),
       ')',
       '{',
       repeat($.block),
       '}'
     ),
     for_1_stmt: $ => choice(
-      $.var_declar_stmt,
+      // $.var_declar_stmt,
+      // $.self_inc_dec_stmt,
+      $.assign_stmt
+    ),
+    for_3_stmt: $ => choice(
       $.self_inc_dec_stmt,
       $.assign_stmt
     ),
@@ -240,7 +246,10 @@ module.exports = grammar({
       $.self_inc_dec_stmt,
       $.call_statement,
       $.interrupt_stmt,
-      $.restrict_stmt
+      $.restrict_stmt,
+      $.assign_stmt,
+      $.delete_expr,
+      $.new_expr,
     ),
 
     require_stmt: $ => seq(
@@ -254,8 +263,6 @@ module.exports = grammar({
     ),
 
     var_declar_stmt: $ => choice(
-      // $._elements_var_declar_stmt,
-
       seq(
         optional($.var_prefix),
         $._elements_var_declar_stmt
@@ -280,11 +287,10 @@ module.exports = grammar({
     ),
 
 
-    self_inc_dec_stmt: $ => choice(
-      seq($.self_inc_dec_operators, $.id_expr),
-      seq($.id_expr, $.self_inc_dec_operators),
-      //  seq($.self_inc_dec_stmt, ',' , $.self_inc_dec_stmt )
-    ),
+    self_inc_dec_stmt: $ => prec(26, choice(
+      seq($.self_inc_dec_operators, $.common_values_expr),
+      seq($.common_values_expr, $.self_inc_dec_operators),
+    )),
     self_inc_dec_operators: $ => choice(
       $.OP_INC,
       $.OP_DEC
@@ -294,34 +300,88 @@ module.exports = grammar({
       $.KEY_BREAK,
       $.KEY_CONTINUE,
       $.KEY_RETURN,
-      seq($.KEY_RETURN, $.assign_stmt_value)
+      seq($.KEY_RETURN, $.common_expr)
     ),
     restrict_stmt: $ => $.KEY_RESTRICT,
 
-    assign_stmt: $ => 'assign_stmt',
-    assign_stmt_value: $ => 'assign_stmt_value',
+    // assign_stmt  start   赋值语句
+    assign_stmt: $ => choice(
+      $.single_assign_stmt,
+      $.number_change_assign_stmt
+    ),
+    multiple_assign_stmt: $ => choice(
+      $.single_assign_stmt,
+    ),
+    single_assign_stmt: $ => prec.right(seq(
+      $.common_assignable_expr,
+      $.OP_ASSIGN,
+      $.common_expr
+    )),
+    single_assign_stmt_value: $ => choice(
+      $.common_expr,
+
+    ),
+
     assign_stmt_value_eq: $ => choice(
       $.number_expr,
       $.common_values_expr,
       $.common_result_of_call_expr
     ),
-    single_assign_stmt: $ => '',
-    class_member_assign_stmt: $ => '',
-    array_ele_assign_stmt: $ => '',
 
-    arithmetic_stmt: $ => prec.left(choice(
+    number_change_assign_stmt: $ => seq(
+      $.common_assignable_expr,
+      $.symbol_change_assign,
+      $.common_number_expr
+    ),
+    symbol_change_assign: $ => choice(
+      $.OP_ADD_EQ,
+      $.OP_SUB_EQ,
+      $.OP_MUL_EQ,
+      $.OP_DIV_EQ,
+      $.OP_MOD_EQ
+    ),
+
+    // assign_stmt  end   赋值语句
+
+    // arithmetic_stmt  start   运算语句
+    arithmetic_stmt: $ => choice(
+      $._arithmetic_stmt_types,
+      $.bit_arithmetic_stmt
+    ),
+    _arithmetic_stmt_types: $ => prec.left(choice(
       $._arithmetic_add_sub_stmt,
       $._arithmetic_mul_div_stmt,
     )),
-    _arithmetic_add_sub_stmt: $ => prec.left(prec(20,
-      seq( $.common_number_expr, '+', $.common_number_expr )
-    )),
-    _arithmetic_mul_div_stmt: $ => prec.left(prec(25,
-      seq( $.common_number_expr, '*', $.common_number_expr )
-    )),
+    _arithmetic_add_sub_stmt: $ => prec.left(20, choice(
+        seq( $.common_number_expr, $.OP_ADD, $.common_number_expr ),
+        seq( $.common_number_expr, $.OP_SUB, $.common_number_expr ),
+      )
+    ),
+    _arithmetic_mul_div_stmt: $ => prec.left(25, choice(
+        seq( $.common_number_expr, $.OP_MUL, $.common_number_expr ),
+        seq( $.common_number_expr, $.OP_DIV, $.common_number_expr ),
+        seq( $.common_number_expr, $.OP_MOD, $.common_number_expr ),
+      )
+    ),
+    bit_arithmetic_stmt: $ => seq(
+      $.common_number_expr,
+      $.symbol_bit_opr,
+      $.common_number_expr
+    ),
+    symbol_bit_opr: $ => choice(
+      $.BIT_AND,
+      $.BIT_XOR,
+      $.BIT_OR,
+      $.BIT_NOT,
+      $.BIT_LEFT_SHIFT,
+      $.BIT_RIGHT_SHIFT,
+    ),
 
-    expr_delete: $ => seq($.KEY_DELETE, $.multiple_id_expr),
-    expr_new: $ => seq(
+    // arithmetic_stmt  end   运算语句
+
+
+    delete_expr: $ => seq($.KEY_DELETE, $.multiple_id_expr),
+    new_expr: $ => seq(
       $.KEY_NEW,
       $.id_expr,
       '(',
@@ -375,10 +435,13 @@ module.exports = grammar({
       seq($.multiple_id_expr, ',' , $.id_expr)
     ),
 
+    // "a " + "b" + c  这种形式
+    string_plus_stmt: $ => 'string_plus_stmt',
+
     // common statement ..
     id_expr: $ => $._IDENTIFIER ,
-    int_expr: $ => $.XINTEGER,
-    number_expr: $ => choice ( $.TDOUBLE, $.XINTEGER ),
+    int_expr: $ => $._TINTEGER,
+    number_expr: $ => choice ( $._TDOUBLE, $._TINTEGER ),
     string_expr: $ => $.TSTRING,
     null_expr: $ => $.KEY_NULL,
     bool_expr: $ => choice($.KEY_TRUE, $.KEY_FALSE),
@@ -390,44 +453,62 @@ module.exports = grammar({
       ']'
     ),
 
+    // 常规类型值的表达式，  数字，字符串， null, 匿名函数 bool
     common_types_expr: $ => choice(
       $.number_expr,
       $.string_expr,
       $.null_expr,
-      $.lambda_stmt
+      $.lambda_stmt,
+      $.bool_expr
     ),
 
-    common_values_expr: $ => choice(
+    // 不包含 this 关键词的常规可用作赋值左值的对象
+    common_others_values_expr: $ => choice(
       $.id_expr,
       $.array_ele_stmt,
       $.class_member_stmt,
-      $.this_stmt,
       $.static_member_stmt
     ),
+    common_values_expr: $ => choice(
+      $.common_others_values_expr,
+      $.this_stmt
+    ),
 
+    // 调用或者计算之后可以得到一个结果的表达式
     common_result_of_call_expr: $ => choice(
       $.self_inc_dec_stmt,
       $.call_statement,
-      $.arithmetic_stmt
+      $.arithmetic_stmt,
+      $.single_assign_stmt,
     ),
 
+    // 常规表达式 |  可以获取到一个结果的 表达式
     common_expr: $ => choice(
       $.common_types_expr,
       $.common_values_expr,
-      $.common_result_of_call_expr
+      $.common_result_of_call_expr,
+      $.string_plus_stmt,
     ),
 
+    // 可用作赋值语句左项的表达式
+    common_assignable_expr: $ => choice(
+      $.common_others_values_expr
+    ),
+
+    // 可以获取到一个数字的表达式 （或者说是 结果可能是一个数字的表达式）
     common_number_expr: $ => choice(
       $.number_expr,
       $.common_values_expr,
       $.common_result_of_call_expr
     ),
 
+    // 可以获取到一个对象的表达式
     common_object_expr: $ => choice(
       $.common_values_expr,
       $.call_statement
     ),
 
+    // 可以获取到一个字符串的表达式
     common_string_expr: $ => choice(
       $.string_expr,
       $.common_object_expr
@@ -436,8 +517,8 @@ module.exports = grammar({
     // terminate symbols
     _IDENTIFIER: $ => /[$_a-zA-Z][$_a-zA-Z0-9]*/ ,
     TSTRING: $ => /\"(\\.|[^\\"\n])*\"/ ,
-    XINTEGER: $ => /0|([1-9][0-9]*)/ ,
-    TDOUBLE: $ => /(0|[1-9][0-9]*)\.[0-9]+/ ,
+    _TINTEGER: $ => /0|([1-9][0-9]*)/ ,
+    _TDOUBLE: $ => /(0|[1-9][0-9]*)\.[0-9]+/ ,
     OPERATOR_X__: $ => /operator([\+\-\*\/\.=]|<<|>>|\+\+|\-\-|\[\])/,
 
     // 空字符串， 什么都没有
@@ -481,27 +562,27 @@ module.exports = grammar({
 
 
     // mathematical symbols
-    OP_ADD: $ => '+' ,
-    OP_SUB: $ => '-' ,
-    OP_MUL: $ => '*' ,
-    OP_DIV: $ => '/' ,
-    OP_MOD: $ => '%' ,
+    OP_ADD: $ => prec.left('+') ,
+    OP_SUB: $ => prec.left('-') ,
+    OP_MUL: $ => prec.left('*') ,
+    OP_DIV: $ => prec.left('/') ,
+    OP_MOD: $ => prec.left('%') ,
+    OP_ASSIGN: $ => prec.right('='),
     OP_ADD_EQ: $ => '+=',
     OP_SUB_EQ: $ => '-=',
     OP_MUL_EQ: $ => '*=',
     OP_DIV_EQ: $ => '/=',
     OP_MOD_EQ: $ => '%=',
-    OP_LEFT_SHIFT: $ => '<<' ,
-    OP_RIGHT_SHIFT: $ => '>>' ,
     OP_INC: $ => '++',
     OP_DEC: $ => '--',
 
     // bit operator
-    BIT_AND: $ => '&',
-    BIT_OR: $ => '|',
-    BIT_XOR: $ => '^',
-    BIT_NOT: $ => '~' ,
-
+    BIT_AND: $ => prec.left('&'),
+    BIT_OR: $ => prec.left('|'),
+    BIT_XOR: $ => prec.left('^'),
+    BIT_NOT: $ => prec.left('~') ,
+    BIT_LEFT_SHIFT: $ => prec.left('<<') ,
+    BIT_RIGHT_SHIFT: $ => prec.left('>>') ,
 
     // logic symbols
     OP_AND: $ => '&&',
@@ -517,6 +598,7 @@ module.exports = grammar({
     // Other
     OP_DOT: $ => '.',
     OP_SCOPE: $ => '::',
+    OP_COMMA: $ => prec.left(','),
 
   }
 });
