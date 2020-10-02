@@ -10,6 +10,7 @@ module.exports = grammar({
     [$.common_types_expr, $.string_plus_stmt],
     [$.string_plus_stmt_value, $.common_result_of_call_expr],
     [$.string_plus_stmt_value, $.common_expr],
+    [$.common_others_values_expr, $.multiple_id_expr]
 
   ],
   extras: $ => [
@@ -81,7 +82,7 @@ module.exports = grammar({
 
     args_list_with_parentheses: $ => seq(
       '(',
-      repeat($.args_list),
+      optional($.args_list),
       ')'
     ),
     args_list: $ => choice(
@@ -141,11 +142,13 @@ module.exports = grammar({
 
     compare_expr: $ => choice(
       $.number_compare_expr,
-      $.null_check_expr
+      $.object_compare_expr
     ),
     number_compare_expr: $ => seq($.common_number_expr, $._symbol_compare, $.common_number_expr),
-    null_check_expr: $ => prec(15,
-      seq($.common_object_expr, $._symbol_equals_not, $.null_expr)
+    object_compare_expr: $ => prec(15, choice(
+        seq($.common_object_expr, $._symbol_equals_not, $.common_types_expr),
+        // seq($.common_object_expr, $._symbol_equals_not, $.string_expr)
+      )
     ),
     _symbol_compare: $ => choice(
       $.OP_GT,
@@ -318,8 +321,8 @@ module.exports = grammar({
     interrupt_stmt: $ => choice(
       $.KEY_BREAK,
       $.KEY_CONTINUE,
-      $.KEY_RETURN,
-      seq($.KEY_RETURN, $.common_expr)
+      // $.KEY_RETURN,
+      seq($.KEY_RETURN, optional($.common_expr))
     ),
     restrict_stmt: $ => $.KEY_RESTRICT,
 
@@ -453,10 +456,10 @@ module.exports = grammar({
     ),
 
     // other stmt.
-    multiple_id_expr: $ => prec(40, choice(
+    multiple_id_expr: $ => choice(
       $.id_expr,
       seq($.multiple_id_expr, ',' , $.id_expr)
-    )),
+    ),
 
     // 命名空间的名字，  a | com.abc.zzz
     namespace_name_stmt: $ => choice(
@@ -473,7 +476,8 @@ module.exports = grammar({
       $.common_object_expr,
       $.common_types_expr,
       $.string_plus_stmt,
-      $.self_inc_dec_stmt
+      $.self_inc_dec_stmt,
+      $.number_parentheses_stmt
     ),
 
     // common statement ..
