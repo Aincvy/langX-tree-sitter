@@ -33,7 +33,8 @@ module.exports = grammar({
     out_declar_stmt: $ => choice(
       $.func_declar_stmt,
       $.class_declar_stmt,
-      $.namespace_declar_stmt
+      $.namespace_declar_stmt,
+      $.namespace_ref_stmt
     ),
 
     // function
@@ -382,9 +383,16 @@ module.exports = grammar({
         seq( $.common_number_expr, $.OP_MOD, $.common_number_expr ),
       )
     ),
-    bit_arithmetic_stmt: $ => prec.left(seq(
-      $.common_number_expr,
-      $.symbol_bit_opr,
+    bit_arithmetic_stmt: $ => prec.left(choice(
+      seq(
+        $.common_number_expr,
+        $.symbol_bit_opr,
+        $.common_number_expr
+      ),
+      $._bit_not_arithmetic_stmt
+    )),
+    _bit_not_arithmetic_stmt: $ => prec(45, seq(
+      $.BIT_NOT,
       $.common_number_expr
     )),
     // bit_arithmetic_stmt_shift: $ => prec.left
@@ -392,7 +400,6 @@ module.exports = grammar({
       $.BIT_AND,
       $.BIT_XOR,
       $.BIT_OR,
-      $.BIT_NOT,
       $.BIT_LEFT_SHIFT,
       $.BIT_RIGHT_SHIFT,
     ),
@@ -424,7 +431,8 @@ module.exports = grammar({
     block_item: $ => choice(
       $.try_stmt,
       $.simple_stmt,
-      $._con_ctl_stmt
+      $._con_ctl_stmt,
+      ';'                     //  分号
     ),
 
     // try stmt.

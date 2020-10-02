@@ -48,6 +48,10 @@
         {
           "type": "SYMBOL",
           "name": "namespace_declar_stmt"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "namespace_ref_stmt"
         }
       ]
     },
@@ -1462,15 +1466,41 @@
       "type": "PREC_LEFT",
       "value": 0,
       "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "common_number_expr"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "symbol_bit_opr"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "common_number_expr"
+              }
+            ]
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_bit_not_arithmetic_stmt"
+          }
+        ]
+      }
+    },
+    "_bit_not_arithmetic_stmt": {
+      "type": "PREC",
+      "value": 45,
+      "content": {
         "type": "SEQ",
         "members": [
           {
             "type": "SYMBOL",
-            "name": "common_number_expr"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "symbol_bit_opr"
+            "name": "BIT_NOT"
           },
           {
             "type": "SYMBOL",
@@ -1493,10 +1523,6 @@
         {
           "type": "SYMBOL",
           "name": "BIT_OR"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "BIT_NOT"
         },
         {
           "type": "SYMBOL",
@@ -1593,6 +1619,10 @@
         {
           "type": "SYMBOL",
           "name": "_con_ctl_stmt"
+        },
+        {
+          "type": "STRING",
+          "value": ";"
         }
       ]
     },

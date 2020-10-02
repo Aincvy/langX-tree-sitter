@@ -216,6 +216,10 @@
       "required": true,
       "types": [
         {
+          "type": "BIT_NOT",
+          "named": true
+        },
+        {
           "type": "common_number_expr",
           "named": true
         },
@@ -232,7 +236,7 @@
     "fields": {},
     "children": {
       "multiple": false,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "loop_stmt",
@@ -1102,6 +1106,25 @@
     }
   },
   {
+    "type": "namespace_ref_stmt",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "KEY_REF",
+          "named": true
+        },
+        {
+          "type": "namespace_name_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "new_expr",
     "named": true,
     "fields": {},
@@ -1289,6 +1312,10 @@
         },
         {
           "type": "namespace_declar_stmt",
+          "named": true
+        },
+        {
+          "type": "namespace_ref_stmt",
           "named": true
         }
       ]
@@ -1709,10 +1736,6 @@
         },
         {
           "type": "BIT_LEFT_SHIFT",
-          "named": true
-        },
-        {
-          "type": "BIT_NOT",
           "named": true
         },
         {
