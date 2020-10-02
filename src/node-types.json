@@ -50,6 +50,11 @@
     "fields": {}
   },
   {
+    "type": "OP_DOT",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "OP_MOD",
     "named": true,
     "fields": {}
@@ -230,6 +235,14 @@
       "required": true,
       "types": [
         {
+          "type": "loop_stmt",
+          "named": true
+        },
+        {
+          "type": "selection_stmt",
+          "named": true
+        },
+        {
           "type": "simple_stmt",
           "named": true
         },
@@ -361,6 +374,10 @@
       "types": [
         {
           "type": "func_declar_stmt",
+          "named": true
+        },
+        {
+          "type": "single_assign_stmt",
           "named": true
         },
         {
@@ -593,6 +610,10 @@
           "named": true
         },
         {
+          "type": "number_parentheses_stmt",
+          "named": true
+        },
+        {
           "type": "self_inc_dec_stmt",
           "named": true
         }
@@ -643,6 +664,10 @@
           "named": true
         },
         {
+          "type": "new_expr",
+          "named": true
+        },
+        {
           "type": "this_stmt",
           "named": true
         }
@@ -657,6 +682,10 @@
       "multiple": false,
       "required": true,
       "types": [
+        {
+          "type": "null_check_expr",
+          "named": true
+        },
         {
           "type": "number_compare_expr",
           "named": true
@@ -927,6 +956,29 @@
     }
   },
   {
+    "type": "lambda_stmt",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "KEY_FUNCTION",
+          "named": true
+        },
+        {
+          "type": "code_block",
+          "named": true
+        },
+        {
+          "type": "multiple_id_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "logic_stmt",
     "named": true,
     "fields": {},
@@ -934,6 +986,14 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "OP_AND",
+          "named": true
+        },
+        {
+          "type": "OP_OR",
+          "named": true
+        },
         {
           "type": "bool_param_expr",
           "named": true
@@ -948,10 +1008,6 @@
         },
         {
           "type": "not_bool_param_expr",
-          "named": true
-        },
-        {
-          "type": "symbol_logic_connection",
           "named": true
         },
         {
@@ -1016,7 +1072,30 @@
           "named": true
         },
         {
+          "type": "namespace_name_stmt",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "namespace_name_stmt",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "OP_DOT",
+          "named": true
+        },
+        {
           "type": "id_expr",
+          "named": true
+        },
+        {
+          "type": "namespace_name_stmt",
           "named": true
         }
       ]
@@ -1065,19 +1144,36 @@
     }
   },
   {
-    "type": "null_expr",
+    "type": "null_check_expr",
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
         {
-          "type": "KEY_NULL",
+          "type": "OP_EQ",
+          "named": true
+        },
+        {
+          "type": "OP_NE",
+          "named": true
+        },
+        {
+          "type": "common_object_expr",
+          "named": true
+        },
+        {
+          "type": "null_expr",
           "named": true
         }
       ]
     }
+  },
+  {
+    "type": "null_expr",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "number_change_assign_stmt",
@@ -1111,11 +1207,31 @@
       "required": true,
       "types": [
         {
-          "type": "common_number_expr",
+          "type": "OP_EQ",
           "named": true
         },
         {
-          "type": "symbol_compare",
+          "type": "OP_GE",
+          "named": true
+        },
+        {
+          "type": "OP_GT",
+          "named": true
+        },
+        {
+          "type": "OP_LE",
+          "named": true
+        },
+        {
+          "type": "OP_LT",
+          "named": true
+        },
+        {
+          "type": "OP_NE",
+          "named": true
+        },
+        {
+          "type": "common_number_expr",
           "named": true
         }
       ]
@@ -1124,7 +1240,36 @@
   {
     "type": "number_expr",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "positive_number_expr",
+          "named": true
+        },
+        {
+          "type": "uminus_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "number_parentheses_stmt",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "common_number_expr",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "out_declar_stmt",
@@ -1148,6 +1293,11 @@
         }
       ]
     }
+  },
+  {
+    "type": "positive_number_expr",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "require_operators",
@@ -1327,7 +1477,26 @@
           "named": true
         },
         {
+          "type": "single_assign_stmt_value",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "single_assign_stmt_value",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
           "type": "common_expr",
+          "named": true
+        },
+        {
+          "type": "single_assign_stmt",
           "named": true
         }
       ]
@@ -1396,7 +1565,7 @@
     "fields": {},
     "children": {
       "multiple": false,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "loop_stmt",
@@ -1443,13 +1612,53 @@
   {
     "type": "string_expr",
     "named": true,
+    "fields": {}
+  },
+  {
+    "type": "string_plus_stmt",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "OP_ADD",
+          "named": true
+        },
+        {
+          "type": "string_expr",
+          "named": true
+        },
+        {
+          "type": "string_plus_stmt_value",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "string_plus_stmt_value",
+    "named": true,
     "fields": {},
     "children": {
       "multiple": false,
       "required": true,
       "types": [
         {
-          "type": "TSTRING",
+          "type": "common_object_expr",
+          "named": true
+        },
+        {
+          "type": "common_types_expr",
+          "named": true
+        },
+        {
+          "type": "self_inc_dec_stmt",
+          "named": true
+        },
+        {
+          "type": "string_plus_stmt",
           "named": true
         }
       ]
@@ -1549,60 +1758,6 @@
     }
   },
   {
-    "type": "symbol_compare",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "OP_EQ",
-          "named": true
-        },
-        {
-          "type": "OP_GE",
-          "named": true
-        },
-        {
-          "type": "OP_GT",
-          "named": true
-        },
-        {
-          "type": "OP_LE",
-          "named": true
-        },
-        {
-          "type": "OP_LT",
-          "named": true
-        },
-        {
-          "type": "OP_NE",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "symbol_logic_connection",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "OP_AND",
-          "named": true
-        },
-        {
-          "type": "OP_OR",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "this_stmt",
     "named": true,
     "fields": {},
@@ -1658,6 +1813,48 @@
         },
         {
           "type": "id_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "uminus_expr",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "uminus_expr_values",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "uminus_expr_values",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "call_statement",
+          "named": true
+        },
+        {
+          "type": "common_others_values_expr",
+          "named": true
+        },
+        {
+          "type": "number_parentheses_stmt",
+          "named": true
+        },
+        {
+          "type": "positive_number_expr",
           "named": true
         }
       ]
@@ -1861,11 +2058,11 @@
     "named": true
   },
   {
-    "type": "KEY_NULL",
+    "type": "KEY_PUBLIC",
     "named": true
   },
   {
-    "type": "KEY_PUBLIC",
+    "type": "KEY_REF",
     "named": true
   },
   {
@@ -1981,10 +2178,6 @@
     "named": true
   },
   {
-    "type": "TSTRING",
-    "named": true
-  },
-  {
     "type": "[",
     "named": false
   },
@@ -1995,14 +2188,6 @@
   {
     "type": "^",
     "named": false
-  },
-  {
-    "type": "lambda_stmt",
-    "named": true
-  },
-  {
-    "type": "string_plus_stmt",
-    "named": true
   },
   {
     "type": "{",

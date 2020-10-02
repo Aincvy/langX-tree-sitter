@@ -4,6 +4,18 @@ module.exports = grammar({
   word: $ => $._IDENTIFIER,
   conflicts: $ => [
     [$.common_object_expr, $.common_result_of_call_expr] ,
+    [$.common_number_expr, $.common_result_of_call_expr] ,
+    [$.common_number_expr, $.common_object_expr],
+    [$.common_types_expr, $.common_number_expr],
+    [$.common_types_expr, $.string_plus_stmt],
+    [$.string_plus_stmt_value, $.common_result_of_call_expr],
+    [$.string_plus_stmt_value, $.common_expr],
+
+  ],
+  extras: $ => [
+    /\s*/,     // 空格制表换行
+    /\/\/[^\n\r]+?(?:\*\)|[\n\r])/,           //   //开头的 行注释
+    /\/\*(\s|.)*?\*\//,     //   /* 块注释 */
   ],
 
   rules: {
@@ -13,7 +25,8 @@ module.exports = grammar({
       $.out_declar_stmt,
       $._con_ctl_stmt,
       $.simple_stmt,
-      $.try_stmt
+      $.try_stmt,
+      ';'                            // 将一个不属于任何项的分号视为一个单独的语句
     ),
 
     out_declar_stmt: $ => choice(
@@ -35,7 +48,20 @@ module.exports = grammar({
     ),
     func_param_list: $ => seq('(' , optional($.multiple_id_expr), ')' ),
 
-    lambda_stmt: $ => 'lambda_stmt',
+    lambda_stmt: $ => choice(
+      seq(
+        '(',
+        optional($.multiple_id_expr),
+        ')',
+        $.KEY_FUNCTION,
+        $.code_block
+      ),
+      seq(
+        $.multiple_id_expr,
+        $.KEY_FUNCTION,
+        $.code_block
+      )
+    ),
 
     call_statement: $ => prec(2, choice(
       // common_values_expr '(' args_list ')'
@@ -77,6 +103,7 @@ module.exports = grammar({
 
     class_body: $ => choice(
       seq($.var_declar_stmt, ';'),
+      seq($.single_assign_stmt, ';'),
       $.func_declar_stmt
     ),
 
@@ -103,7 +130,7 @@ module.exports = grammar({
       $.bool_param_expr,
       $.not_bool_param_expr,
       $.compare_expr,
-      seq($.logic_stmt, $.symbol_logic_connection, $.logic_stmt),
+      seq($.logic_stmt, $._symbol_logic_connection, $.logic_stmt),
     )),
     type_judge_stmt: $ => seq($.common_object_expr, $.KEY_IS, $.id_expr),
     bool_param_expr: $ => choice(
@@ -114,13 +141,13 @@ module.exports = grammar({
 
     compare_expr: $ => choice(
       $.number_compare_expr,
-      // $.null_check_expr
+      $.null_check_expr
     ),
-    number_compare_expr: $ => seq($.common_number_expr, $.symbol_compare, $.common_number_expr),
-    // null_check_expr: $ => prec(15,
-    //   seq($.common_object_expr, $.symbol_equals_not, $.null_expr)
-    // ),
-    symbol_compare: $ => choice(
+    number_compare_expr: $ => seq($.common_number_expr, $._symbol_compare, $.common_number_expr),
+    null_check_expr: $ => prec(15,
+      seq($.common_object_expr, $._symbol_equals_not, $.null_expr)
+    ),
+    _symbol_compare: $ => choice(
       $.OP_GT,
       $.OP_LT,
       $.OP_GE,
@@ -128,11 +155,11 @@ module.exports = grammar({
       $.OP_NE,
       $.OP_EQ
     ),
-    symbol_equals_not: $ => choice(
+    _symbol_equals_not: $ => choice(
       $.OP_NE,
       $.OP_EQ
     ),
-    symbol_logic_connection: $ => choice(
+    _symbol_logic_connection: $ => choice(
       $.OP_AND,
       $.OP_OR
     ),
@@ -279,7 +306,7 @@ module.exports = grammar({
     ),
 
 
-    self_inc_dec_stmt: $ => prec(26, choice(
+    self_inc_dec_stmt: $ => prec(46, choice(
       seq($.self_inc_dec_operators, $.common_values_expr),
       seq($.common_values_expr, $.self_inc_dec_operators),
     )),
@@ -297,16 +324,19 @@ module.exports = grammar({
     restrict_stmt: $ => $.KEY_RESTRICT,
 
     // assign_stmt  start   赋值语句
-    assign_stmt: $ => choice(
+    assign_stmt: $ => prec(8, choice(
       $.single_assign_stmt,
       $.number_change_assign_stmt
-    ),
+    )),
     single_assign_stmt: $ => prec.right(seq(
       $.common_assignable_expr,
       $.OP_ASSIGN,
-      $.common_expr
+      $.single_assign_stmt_value
     )),
-
+    single_assign_stmt_value: $ => choice(
+      $.common_expr,
+      $.single_assign_stmt
+    ),
 
     assign_stmt_value_eq: $ => choice(
       $.number_expr,
@@ -364,6 +394,13 @@ module.exports = grammar({
       $.BIT_RIGHT_SHIFT,
     ),
 
+    // 带有小括号的表达式，  (a), (a + b)  a + (b + c )
+    number_parentheses_stmt: $ => prec(46, seq(
+      '(',
+      $.common_number_expr,
+      ')'
+    )),
+
     // arithmetic_stmt  end   运算语句
 
 
@@ -383,7 +420,8 @@ module.exports = grammar({
 
     block_item: $ => choice(
       $.try_stmt,
-      $.simple_stmt
+      $.simple_stmt,
+      $._con_ctl_stmt
     ),
 
     // try stmt.
@@ -405,25 +443,46 @@ module.exports = grammar({
       $.KEY_SET,
       $.KEY_PUBLIC,
       '=',
-      $.id_expr,
+      $.namespace_name_stmt,
+      ';'
+    ),
+    namespace_ref_stmt: $ => seq(
+      $.KEY_REF ,
+      $.namespace_name_stmt,
       ';'
     ),
 
     // other stmt.
-    multiple_id_expr: $ => choice(
+    multiple_id_expr: $ => prec(40, choice(
       $.id_expr,
       seq($.multiple_id_expr, ',' , $.id_expr)
+    )),
+
+    // 命名空间的名字，  a | com.abc.zzz
+    namespace_name_stmt: $ => choice(
+      $.id_expr,
+      seq($.namespace_name_stmt, $.OP_DOT, $.id_expr)
     ),
 
     // "a " + "b" + c  这种形式
-    string_plus_stmt: $ => 'string_plus_stmt',
+    string_plus_stmt: $ => prec.left(20, choice(
+      seq($.string_expr, $.OP_ADD, $.string_plus_stmt_value),
+      seq($.string_plus_stmt_value, $.OP_ADD, $.string_expr),
+    )),
+    string_plus_stmt_value: $ => choice(
+      $.common_object_expr,
+      $.common_types_expr,
+      $.string_plus_stmt,
+      $.self_inc_dec_stmt
+    ),
 
     // common statement ..
     id_expr: $ => $._IDENTIFIER ,
     int_expr: $ => $._TINTEGER,
-    number_expr: $ => choice ( $._TDOUBLE, $._TINTEGER ),
-    string_expr: $ => $.TSTRING,
-    null_expr: $ => $.KEY_NULL,
+    positive_number_expr: $ => choice ( $._TDOUBLE, $._TINTEGER ),
+    number_expr: $ => choice( $.positive_number_expr, $.uminus_expr ),
+    string_expr: $ => $._TSTRING,
+    null_expr: $ => $._KEY_NULL,
     bool_expr: $ => choice($.KEY_TRUE, $.KEY_FALSE),
 
     array_ele_stmt: $ => seq(
@@ -432,6 +491,17 @@ module.exports = grammar({
       $.common_number_expr,
       ']'
     ),
+
+    uminus_expr: $ => prec(45, seq(
+        '-',
+        $.uminus_expr_values
+    )),
+    uminus_expr_values: $ => prec(45, choice(
+      $.positive_number_expr,
+      $.common_others_values_expr,
+      $.call_statement,
+      $.number_parentheses_stmt
+    )),
 
     // 常规类型值的表达式，  数字，字符串， null, 匿名函数 bool
     common_types_expr: $ => choice(
@@ -448,10 +518,12 @@ module.exports = grammar({
       $.array_ele_stmt,
       $.class_member_stmt,
       $.static_member_stmt
+
     ),
     common_values_expr: $ => choice(
       $.common_others_values_expr,
-      $.this_stmt
+      $.this_stmt,
+      $.new_expr
     ),
 
     // 调用或者计算之后可以得到一个结果的表达式
@@ -459,7 +531,7 @@ module.exports = grammar({
       $.self_inc_dec_stmt,
       $.call_statement,
       $.arithmetic_stmt,
-      // $.single_assign_stmt,
+      $.number_parentheses_stmt,
     ),
 
     // 常规表达式 |  可以获取到一个结果的 表达式
@@ -476,17 +548,17 @@ module.exports = grammar({
     ),
 
     // 可以获取到一个数字的表达式 （或者说是 结果可能是一个数字的表达式）
-    common_number_expr: $ => choice(
+    common_number_expr: $ => prec(1, choice(
       $.number_expr,
       $.common_values_expr,
       $.common_result_of_call_expr
-    ),
+    )),
 
     // 可以获取到一个对象的表达式
-    common_object_expr: $ => choice(
+    common_object_expr: $ => prec(1,choice(
       $.common_values_expr,
       $.call_statement
-    ),
+    )),
 
     // 可以获取到一个字符串的表达式
     common_string_expr: $ => choice(
@@ -496,13 +568,10 @@ module.exports = grammar({
 
     // terminate symbols
     _IDENTIFIER: $ => /[$_a-zA-Z][$_a-zA-Z0-9]*/ ,
-    TSTRING: $ => /\"(\\.|[^\\"\n])*\"/ ,
+    _TSTRING: $ => /\"(\\.|[^\\"\n])*\"/ ,
     _TINTEGER: $ => /0|([1-9][0-9]*)/ ,
     _TDOUBLE: $ => /(0|[1-9][0-9]*)\.[0-9]+/ ,
     OPERATOR_X__: $ => /operator([\+\-\*\/\.=]|<<|>>|\+\+|\-\-|\[\])/,
-
-    // 空字符串， 什么都没有
-    EMPTY: $ => '',
 
     // keywords
     KEY_FUNCTION: $ => '=>' ,
@@ -511,7 +580,7 @@ module.exports = grammar({
     KEY_THIS: $ => 'this',
     KEY_EXTEND: $ => 'extends',
     KEY_AUTO: $ => 'auto',
-    KEY_NULL: $ => 'null',
+    _KEY_NULL: $ => 'null',
 
     KEY_TRUE: $ => 'true',
     KEY_FALSE: $ => 'false',
