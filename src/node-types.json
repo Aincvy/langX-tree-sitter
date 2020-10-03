@@ -239,6 +239,14 @@
       "required": false,
       "types": [
         {
+          "type": "COMMENT_BLOCK",
+          "named": true
+        },
+        {
+          "type": "COMMENT_LINE",
+          "named": true
+        },
+        {
           "type": "loop_stmt",
           "named": true
         },
@@ -374,8 +382,16 @@
     "fields": {},
     "children": {
       "multiple": false,
-      "required": true,
+      "required": false,
       "types": [
+        {
+          "type": "COMMENT_BLOCK",
+          "named": true
+        },
+        {
+          "type": "COMMENT_LINE",
+          "named": true
+        },
         {
           "type": "func_declar_stmt",
           "named": true
@@ -1595,6 +1611,14 @@
       "required": false,
       "types": [
         {
+          "type": "COMMENT_BLOCK",
+          "named": true
+        },
+        {
+          "type": "COMMENT_LINE",
+          "named": true
+        },
+        {
           "type": "loop_stmt",
           "named": true
         },
@@ -2011,6 +2035,14 @@
   {
     "type": ">>",
     "named": false
+  },
+  {
+    "type": "COMMENT_BLOCK",
+    "named": true
+  },
+  {
+    "type": "COMMENT_LINE",
+    "named": true
   },
   {
     "type": "KEY_AUTO",

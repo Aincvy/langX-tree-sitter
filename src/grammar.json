@@ -29,8 +29,25 @@
           "name": "try_stmt"
         },
         {
+          "type": "SYMBOL",
+          "name": "_extra_nothing"
+        }
+      ]
+    },
+    "_extra_nothing": {
+      "type": "CHOICE",
+      "members": [
+        {
           "type": "STRING",
           "value": ";"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "COMMENT_LINE"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "COMMENT_BLOCK"
         }
       ]
     },
@@ -395,6 +412,10 @@
         {
           "type": "SYMBOL",
           "name": "func_declar_stmt"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_extra_nothing"
         }
       ]
     },
@@ -1621,8 +1642,8 @@
           "name": "_con_ctl_stmt"
         },
         {
-          "type": "STRING",
-          "value": ";"
+          "type": "SYMBOL",
+          "name": "_extra_nothing"
         }
       ]
     },
@@ -2440,20 +2461,20 @@
         "type": "STRING",
         "value": ","
       }
+    },
+    "COMMENT_LINE": {
+      "type": "PATTERN",
+      "value": "\\/\\/[^\\n\\r]+?(?:\\*\\)|[\\n\\r])"
+    },
+    "COMMENT_BLOCK": {
+      "type": "PATTERN",
+      "value": "\\/\\*(\\s|.)*?\\*\\/"
     }
   },
   "extras": [
     {
       "type": "PATTERN",
-      "value": "\\s*"
-    },
-    {
-      "type": "PATTERN",
-      "value": "\\/\\/[^\\n\\r]+?(?:\\*\\)|[\\n\\r])"
-    },
-    {
-      "type": "PATTERN",
-      "value": "\\/\\*(\\s|.)*?\\*\\/"
+      "value": "\\s"
     }
   ],
   "conflicts": [

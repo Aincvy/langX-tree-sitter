@@ -13,11 +13,11 @@ module.exports = grammar({
     [$.common_others_values_expr, $.multiple_id_expr]
 
   ],
-  extras: $ => [
-    /\s*/,     // 空格制表换行
-    /\/\/[^\n\r]+?(?:\*\)|[\n\r])/,           //   //开头的 行注释
-    /\/\*(\s|.)*?\*\//,     //   /* 块注释 */
-  ],
+  // extras: $ => [
+  //   /\s*/,     // 空格制表换行
+  //   /\/\/[^\n\r]+?(?:\*\)|[\n\r])/,           //   //开头的 行注释
+  //   /\/\*(\s|.)*?\*\//,     //   /* 块注释 */
+  // ],
 
   rules: {
 
@@ -27,7 +27,14 @@ module.exports = grammar({
       $._con_ctl_stmt,
       $.simple_stmt,
       $.try_stmt,
-      ';'                            // 将一个不属于任何项的分号视为一个单独的语句
+      $._extra_nothing
+    ),
+
+    // 可以忽略的内容
+    _extra_nothing: $ => choice(
+      ';' ,                         // 将一个不属于任何项的分号视为一个单独的语句
+      $.COMMENT_LINE,
+      $.COMMENT_BLOCK
     ),
 
     out_declar_stmt: $ => choice(
@@ -106,7 +113,8 @@ module.exports = grammar({
     class_body: $ => choice(
       seq($.var_declar_stmt, ';'),
       seq($.single_assign_stmt, ';'),
-      $.func_declar_stmt
+      $.func_declar_stmt,
+      $._extra_nothing
     ),
 
     class_member_stmt: $ => seq(
@@ -432,7 +440,7 @@ module.exports = grammar({
       $.try_stmt,
       $.simple_stmt,
       $._con_ctl_stmt,
-      ';'                     //  分号
+      $._extra_nothing,
     ),
 
     // try stmt.
@@ -660,6 +668,10 @@ module.exports = grammar({
     OP_DOT: $ => '.',
     OP_SCOPE: $ => '::',
     OP_COMMA: $ => prec.left(','),
+
+    // comment
+    COMMENT_LINE: $ => /\/\/[^\n\r]+?(?:\*\)|[\n\r])/,           //   //开头的 行注释,
+    COMMENT_BLOCK: $ => /\/\*(\s|.)*?\*\//,         //   /* 块注释 */
 
   }
 });
