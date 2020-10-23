@@ -104,13 +104,16 @@ module.exports = grammar({
       optional($.class_name_prefix),
       $.id_expr,
       optional($.class_name_suffix),
-      '{', repeat($.class_body) , '}'
+      $.class_body
     ),
 
     class_name_prefix: $ => $.KEY_AUTO,
     class_name_suffix: $ => seq($.KEY_EXTEND, $.multiple_id_expr),
 
-    class_body: $ => choice(
+    class_body: $ => seq(
+      '{', repeat($.class_body_items) , '}'
+    ),
+    class_body_items: $ => choice(
       seq($.var_declar_stmt, ';'),
       seq($.single_assign_stmt, ';'),
       $.func_declar_stmt,
@@ -671,7 +674,11 @@ module.exports = grammar({
 
     // comment
     COMMENT_LINE: $ => /\/\/[^\n\r]+?(?:\*\)|[\n\r])/,           //   //开头的 行注释,
-    COMMENT_BLOCK: $ => /\/\*(\s|.)*?\*\//,         //   /* 块注释 */
+    COMMENT_BLOCK: $ => seq(
+        '/*',
+        /[^*]*\*+([^/*][^*]*\*+)*/,
+        '/'
+      ),         //   /* 块注释 */
 
   }
 });
