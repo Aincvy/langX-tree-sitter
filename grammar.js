@@ -10,7 +10,8 @@ module.exports = grammar({
     [$.common_types_expr, $.string_plus_stmt],
     [$.string_plus_stmt_value, $.common_result_of_call_expr],
     [$.string_plus_stmt_value, $.common_expr],
-    [$.common_others_values_expr, $.multiple_id_expr]
+    [$.common_others_values_expr, $.multiple_id_expr],
+    [$.common_others_values_expr, $._array_var_declar_stmt]
 
   ],
   // extras: $ => [
@@ -275,7 +276,7 @@ module.exports = grammar({
     // simple stmt
     simple_stmt: $ => seq($._simple_stmt_types, ';') ,
     _simple_stmt_types: $ => choice(
-      $.require_stmt,
+      // $.require_stmt,
       $.var_declar_stmt,
       $.self_inc_dec_stmt,
       $.call_statement,
@@ -286,22 +287,21 @@ module.exports = grammar({
       $.new_expr,
     ),
 
-    require_stmt: $ => seq(
-      $.require_operators,
-      $.string_expr
-    ),
-    require_operators: $ => choice(
-      $.KEY_REQUIRE,
-      $.KEY_REQUIRE_ONCE,
-      $.KEY_INCLUDE
-    ),
+    // require_stmt: $ => seq(
+    //   $.require_operators,
+    //   $.string_expr
+    // ),
+    // require_operators: $ => choice(
+    //   $.KEY_REQUIRE,
+    //   $.KEY_REQUIRE_ONCE,
+    //   $.KEY_INCLUDE
+    // ),
 
     var_declar_stmt: $ => choice(
       seq(
         optional($.var_prefix),
-        $._elements_var_declar_stmt
+        $._var_declare_stmt_with_assign_list
       )
-      // todo 声明赋值一起
     ),
 
     var_prefix: $ => choice(
@@ -316,10 +316,16 @@ module.exports = grammar({
       $.id_expr,                                    // single var
       $._array_var_declar_stmt
     ),
-    _array_var_declar_stmt: $ => prec(1,
-      seq($.id_expr, '[', $.common_number_expr, ']' ),       // array
-    ),
+    _array_var_declar_stmt: $ => seq($.id_expr, '[', $.common_number_expr, ']' ),       // array,
 
+    _var_declare_stmt_with_assign_list: $ => choice(
+        $._var_declare_stmt_with_assign,
+        seq($._var_declare_stmt_with_assign_list, ',', $._var_declare_stmt_with_assign)
+    ),
+    _var_declare_stmt_with_assign: $ => prec.left(choice(
+        $._elements_var_declar_stmt,
+        $.single_assign_stmt
+    )),
 
     self_inc_dec_stmt: $ => prec(46, choice(
       seq($.self_inc_dec_operators, $.common_values_expr),
@@ -333,7 +339,6 @@ module.exports = grammar({
     interrupt_stmt: $ => choice(
       $.KEY_BREAK,
       $.KEY_CONTINUE,
-      // $.KEY_RETURN,
       seq($.KEY_RETURN, optional($.common_expr))
     ),
     restrict_stmt: $ => $.KEY_RESTRICT,
@@ -490,11 +495,12 @@ module.exports = grammar({
     string_plus_stmt: $ => prec.left(20, choice(
       seq($.string_expr, $.OP_ADD, $.string_plus_stmt_value),
       seq($.string_plus_stmt_value, $.OP_ADD, $.string_expr),
+      seq($.string_plus_stmt_value, $.OP_ADD, $.string_plus_stmt),
+      seq($.string_plus_stmt, $.OP_ADD, $.string_plus_stmt_value),
     )),
     string_plus_stmt_value: $ => choice(
       $.common_object_expr,
       $.common_types_expr,
-      $.string_plus_stmt,
       $.self_inc_dec_stmt,
       $.number_parentheses_stmt
     ),
@@ -621,12 +627,12 @@ module.exports = grammar({
     KEY_LOCAL: $ => 'local',
     KEY_CONST: $ => 'const',
     KEY_RESTRICT: $ => 'restrict',
-    KEY_SET: $ => 'set',
+    KEY_SET: $ => 'attr',
     KEY_PUBLIC: $ => 'public',
-    KEY_REQUIRE: $ => 'require',
-    KEY_REQUIRE_ONCE: $ => 'require_once',
-    KEY_INCLUDE: $ => 'include',
-    KEY_REF: $ => 'ref',
+    //KEY_REQUIRE: $ => 'require',
+    //KEY_REQUIRE_ONCE: $ => 'require_once',
+    //KEY_INCLUDE: $ => 'include',
+    KEY_REF: $ => 'using',
 
     KEY_IS: $ => 'is',
     KEY_TRY: $ => 'try',
@@ -673,7 +679,7 @@ module.exports = grammar({
     OP_COMMA: $ => prec.left(','),
 
     // comment
-    COMMENT_LINE: $ => /\/\/[^\n\r]+?(?:\*\)|[\n\r])/,           //   //开头的 行注释,
+    COMMENT_LINE: $ => seq('//', /.*/),           //   //开头的 行注释,
     COMMENT_BLOCK: $ => seq(
         '/*',
         /[^*]*\*+([^/*][^*]*\*+)*/,

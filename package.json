@@ -1,7 +1,7 @@
 {
   "name": "tree-sitter-langx",
-  "version": "0.1.1",
-  "description": "tree-sitter for langX| only for atom using now.",
+  "version": "0.1.2",
+  "description": "tree-sitter for langX. Only for atom using now.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

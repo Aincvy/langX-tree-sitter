@@ -994,10 +994,6 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "require_stmt"
-        },
-        {
-          "type": "SYMBOL",
           "name": "var_declar_stmt"
         },
         {
@@ -1030,36 +1026,6 @@
         }
       ]
     },
-    "require_stmt": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "require_operators"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "string_expr"
-        }
-      ]
-    },
-    "require_operators": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "KEY_REQUIRE"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "KEY_REQUIRE_ONCE"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "KEY_INCLUDE"
-        }
-      ]
-    },
     "var_declar_stmt": {
       "type": "CHOICE",
       "members": [
@@ -1080,7 +1046,7 @@
             },
             {
               "type": "SYMBOL",
-              "name": "_elements_var_declar_stmt"
+              "name": "_var_declare_stmt_with_assign_list"
             }
           ]
         }
@@ -1139,26 +1105,65 @@
       ]
     },
     "_array_var_declar_stmt": {
-      "type": "PREC",
-      "value": 1,
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "id_expr"
+        },
+        {
+          "type": "STRING",
+          "value": "["
+        },
+        {
+          "type": "SYMBOL",
+          "name": "common_number_expr"
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
+    "_var_declare_stmt_with_assign_list": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_var_declare_stmt_with_assign"
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_var_declare_stmt_with_assign_list"
+            },
+            {
+              "type": "STRING",
+              "value": ","
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_var_declare_stmt_with_assign"
+            }
+          ]
+        }
+      ]
+    },
+    "_var_declare_stmt_with_assign": {
+      "type": "PREC_LEFT",
+      "value": 0,
       "content": {
-        "type": "SEQ",
+        "type": "CHOICE",
         "members": [
           {
             "type": "SYMBOL",
-            "name": "id_expr"
-          },
-          {
-            "type": "STRING",
-            "value": "["
+            "name": "_elements_var_declar_stmt"
           },
           {
             "type": "SYMBOL",
-            "name": "common_number_expr"
-          },
-          {
-            "type": "STRING",
-            "value": "]"
+            "name": "single_assign_stmt"
           }
         ]
       }
@@ -1839,6 +1844,40 @@
                 "name": "string_expr"
               }
             ]
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "string_plus_stmt_value"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "OP_ADD"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "string_plus_stmt"
+              }
+            ]
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "string_plus_stmt"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "OP_ADD"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "string_plus_stmt_value"
+              }
+            ]
           }
         ]
       }
@@ -1853,10 +1892,6 @@
         {
           "type": "SYMBOL",
           "name": "common_types_expr"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "string_plus_stmt"
         },
         {
           "type": "SYMBOL",
@@ -2261,27 +2296,15 @@
     },
     "KEY_SET": {
       "type": "STRING",
-      "value": "set"
+      "value": "attr"
     },
     "KEY_PUBLIC": {
       "type": "STRING",
       "value": "public"
     },
-    "KEY_REQUIRE": {
-      "type": "STRING",
-      "value": "require"
-    },
-    "KEY_REQUIRE_ONCE": {
-      "type": "STRING",
-      "value": "require_once"
-    },
-    "KEY_INCLUDE": {
-      "type": "STRING",
-      "value": "include"
-    },
     "KEY_REF": {
       "type": "STRING",
-      "value": "ref"
+      "value": "using"
     },
     "KEY_IS": {
       "type": "STRING",
@@ -2472,8 +2495,17 @@
       }
     },
     "COMMENT_LINE": {
-      "type": "PATTERN",
-      "value": "\\/\\/[^\\n\\r]+?(?:\\*\\)|[\\n\\r])"
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "//"
+        },
+        {
+          "type": "PATTERN",
+          "value": ".*"
+        }
+      ]
     },
     "COMMENT_BLOCK": {
       "type": "SEQ",
@@ -2531,6 +2563,10 @@
     [
       "common_others_values_expr",
       "multiple_id_expr"
+    ],
+    [
+      "common_others_values_expr",
+      "_array_var_declar_stmt"
     ]
   ],
   "externals": [],
