@@ -1065,7 +1065,7 @@
         }
       ]
     },
-    "_elements_var_declar_stmt": {
+    "elements_var_declar_stmt": {
       "type": "CHOICE",
       "members": [
         {
@@ -1077,7 +1077,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "_elements_var_declar_stmt"
+              "name": "elements_var_declar_stmt"
             },
             {
               "type": "STRING",
@@ -1159,7 +1159,7 @@
         "members": [
           {
             "type": "SYMBOL",
-            "name": "_elements_var_declar_stmt"
+            "name": "elements_var_declar_stmt"
           },
           {
             "type": "SYMBOL",

@@ -308,9 +308,9 @@ module.exports = grammar({
       $.KEY_CONST,
       $.KEY_LOCAL
     ),
-    _elements_var_declar_stmt: $ => choice(
+    elements_var_declar_stmt: $ => choice(
       $._element_var_declar_stmt,
-      seq($._elements_var_declar_stmt, ',' , $._element_var_declar_stmt)
+      seq($.elements_var_declar_stmt, ',' , $._element_var_declar_stmt)
     ),
     _element_var_declar_stmt: $ => choice(
       $.id_expr,                                    // single var
@@ -323,7 +323,7 @@ module.exports = grammar({
         seq($._var_declare_stmt_with_assign_list, ',', $._var_declare_stmt_with_assign)
     ),
     _var_declare_stmt_with_assign: $ => prec.left(choice(
-        $._elements_var_declar_stmt,
+        $.elements_var_declar_stmt,
         $.single_assign_stmt
     )),
 

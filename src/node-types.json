@@ -777,6 +777,29 @@
     }
   },
   {
+    "type": "elements_var_declar_stmt",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "common_number_expr",
+          "named": true
+        },
+        {
+          "type": "elements_var_declar_stmt",
+          "named": true
+        },
+        {
+          "type": "id_expr",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "else_if_stmt",
     "named": true,
     "fields": {},
@@ -1899,11 +1922,7 @@
       "required": false,
       "types": [
         {
-          "type": "common_number_expr",
-          "named": true
-        },
-        {
-          "type": "id_expr",
+          "type": "elements_var_declar_stmt",
           "named": true
         },
         {
