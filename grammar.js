@@ -199,9 +199,9 @@ module.exports = grammar({
       ')',
       $.code_block
     ),
-    else_stmt: $ => seq(
-      repeat($.else_if_stmt),
-      $.single_else_stmt
+    else_stmt: $ => choice(
+        seq( repeat($.else_if_stmt), $.single_else_stmt ),
+        repeat1($.else_if_stmt),
     ),
     else_if_stmt: $ => seq(
       $.KEY_ELSE,

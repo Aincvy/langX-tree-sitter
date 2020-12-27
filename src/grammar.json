@@ -735,18 +735,30 @@
       ]
     },
     "else_stmt": {
-      "type": "SEQ",
+      "type": "CHOICE",
       "members": [
         {
-          "type": "REPEAT",
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "SYMBOL",
+                "name": "else_if_stmt"
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "single_else_stmt"
+            }
+          ]
+        },
+        {
+          "type": "REPEAT1",
           "content": {
             "type": "SYMBOL",
             "name": "else_if_stmt"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "single_else_stmt"
         }
       ]
     },
