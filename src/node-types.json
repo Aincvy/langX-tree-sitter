@@ -341,7 +341,7 @@
     }
   },
   {
-    "type": "case_stmt",
+    "type": "case_prefix",
     "named": true,
     "fields": {},
     "children": {
@@ -350,10 +350,6 @@
       "types": [
         {
           "type": "KEY_CASE",
-          "named": true
-        },
-        {
-          "type": "block_item",
           "named": true
         },
         {
@@ -563,6 +559,10 @@
           "named": true
         },
         {
+          "type": "logic_stmt",
+          "named": true
+        },
+        {
           "type": "string_plus_stmt",
           "named": true
         }
@@ -739,19 +739,15 @@
     }
   },
   {
-    "type": "default_stmt",
+    "type": "default_prefix",
     "named": true,
     "fields": {},
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
         {
           "type": "KEY_DEFAULT",
-          "named": true
-        },
-        {
-          "type": "block_item",
           "named": true
         }
       ]
@@ -1734,7 +1730,15 @@
           "named": true
         },
         {
-          "type": "case_stmt",
+          "type": "block_item",
+          "named": true
+        },
+        {
+          "type": "case_prefix",
+          "named": true
+        },
+        {
+          "type": "code_block",
           "named": true
         },
         {
@@ -1742,7 +1746,7 @@
           "named": true
         },
         {
-          "type": "default_stmt",
+          "type": "default_prefix",
           "named": true
         }
       ]

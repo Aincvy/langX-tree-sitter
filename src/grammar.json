@@ -817,15 +817,24 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "case_stmt"
+          "name": "_all_case_prefix"
         },
         {
-          "type": "SYMBOL",
-          "name": "default_stmt"
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_all_case_prefix"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_case_block"
+            }
+          ]
         }
       ]
     },
-    "case_stmt": {
+    "case_prefix": {
       "type": "SEQ",
       "members": [
         {
@@ -839,17 +848,10 @@
         {
           "type": "STRING",
           "value": ":"
-        },
-        {
-          "type": "REPEAT",
-          "content": {
-            "type": "SYMBOL",
-            "name": "block_item"
-          }
         }
       ]
     },
-    "default_stmt": {
+    "default_prefix": {
       "type": "SEQ",
       "members": [
         {
@@ -859,9 +861,31 @@
         {
           "type": "STRING",
           "value": ":"
+        }
+      ]
+    },
+    "_all_case_prefix": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "case_prefix"
         },
         {
-          "type": "REPEAT",
+          "type": "SYMBOL",
+          "name": "default_prefix"
+        }
+      ]
+    },
+    "_case_block": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "code_block"
+        },
+        {
+          "type": "REPEAT1",
           "content": {
             "type": "SYMBOL",
             "name": "block_item"
@@ -2022,29 +2046,33 @@
       }
     },
     "common_types_expr": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "number_expr"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "string_expr"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "null_expr"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "lambda_stmt"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "bool_expr"
-        }
-      ]
+      "type": "PREC",
+      "value": 1,
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "number_expr"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "string_expr"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "null_expr"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "lambda_stmt"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "bool_expr"
+          }
+        ]
+      }
     },
     "common_others_values_expr": {
       "type": "CHOICE",
@@ -2123,6 +2151,10 @@
         {
           "type": "SYMBOL",
           "name": "string_plus_stmt"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "logic_stmt"
         }
       ]
     },
@@ -2567,6 +2599,10 @@
     [
       "common_others_values_expr",
       "_array_var_declar_stmt"
+    ],
+    [
+      "common_expr",
+      "assign_stmt_value_eq"
     ]
   ],
   "externals": [],

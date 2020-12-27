@@ -11,7 +11,8 @@ module.exports = grammar({
     [$.string_plus_stmt_value, $.common_result_of_call_expr],
     [$.string_plus_stmt_value, $.common_expr],
     [$.common_others_values_expr, $.multiple_id_expr],
-    [$.common_others_values_expr, $._array_var_declar_stmt]
+    [$.common_others_values_expr, $._array_var_declar_stmt],
+    [$.common_expr, $.assign_stmt_value_eq],
 
   ],
   // extras: $ => [
@@ -220,19 +221,27 @@ module.exports = grammar({
       '}'
     ),
     _case_types_stmt: $ => choice(
-      $.case_stmt,
-      $.default_stmt
+      $._all_case_prefix,
+      seq($._all_case_prefix, $._case_block) ,
     ),
-    case_stmt: $ => seq(
+    case_prefix: $ => seq(
       $.KEY_CASE,
       $.int_expr,
       ':',
-      repeat($.block_item)
     ),
-    default_stmt: $ => seq(
+    default_prefix: $ => seq(
       $.KEY_DEFAULT,
       ':',
-      repeat($.block_item)
+    ),
+
+    _all_case_prefix: $ => choice(
+        $.case_prefix,
+        $.default_prefix
+    ),
+
+    _case_block: $ => choice(
+        $.code_block,
+        repeat1($.block_item)
     ),
 
     // selection_stmt  end !!!
@@ -276,7 +285,6 @@ module.exports = grammar({
     // simple stmt
     simple_stmt: $ => seq($._simple_stmt_types, ';') ,
     _simple_stmt_types: $ => choice(
-      // $.require_stmt,
       $.var_declar_stmt,
       $.self_inc_dec_stmt,
       $.call_statement,
@@ -286,16 +294,6 @@ module.exports = grammar({
       $.delete_expr,
       $.new_expr,
     ),
-
-    // require_stmt: $ => seq(
-    //   $.require_operators,
-    //   $.string_expr
-    // ),
-    // require_operators: $ => choice(
-    //   $.KEY_REQUIRE,
-    //   $.KEY_REQUIRE_ONCE,
-    //   $.KEY_INCLUDE
-    // ),
 
     var_declar_stmt: $ => choice(
       seq(
@@ -533,13 +531,13 @@ module.exports = grammar({
     )),
 
     // 常规类型值的表达式，  数字，字符串， null, 匿名函数 bool
-    common_types_expr: $ => choice(
+    common_types_expr: $ => prec(1, choice(
       $.number_expr,
       $.string_expr,
       $.null_expr,
       $.lambda_stmt,
-      $.bool_expr
-    ),
+      $.bool_expr ,
+    )),
 
     // 不包含 this 关键词的常规可用作赋值左值的对象
     common_others_values_expr: $ => choice(
@@ -569,6 +567,7 @@ module.exports = grammar({
       $.common_values_expr,
       $.common_result_of_call_expr,
       $.string_plus_stmt,
+      $.logic_stmt,
     ),
 
     // 可用作赋值语句左项的表达式
